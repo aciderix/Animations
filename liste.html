@@ -1,518 +1,397 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Configuration des Professionnels et Résidents</title>
-  <style>
-    /* Bouton Retour à l'accueil */
-    .back-button {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      padding: 8px 12px;
-      background: #3498db;
-      color: #fff;
-      border-radius: 5px;
-      text-decoration: none;
-      font-size: 14px;
-      z-index: 1000;
-    }
-    /* Style des boutons de sélection de vue */
-    #viewSwitcher {
-      text-align: center;
-      margin: 20px 0;
-    }
-    #viewSwitcher button {
-      padding: 8px 16px;
-      margin: 0 5px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      background: #3498db;
-      color: #fff;
-    }
-    /* Styles généraux */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f7f7f7;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    h1, h2, h3 {
-      text-align: center;
-    }
-    /* Style des menus déroulants */
-    select {
-      display: block;
-      margin: 0 auto 20px auto;
-      font-size: 16px;
-      padding: 5px;
-    }
-    /* Section de configuration */
-    .pro-settings {
-      margin-top: 20px;
-      padding: 20px;
-      border: 1px solid #aaa;
-      border-radius: 5px;
-      background: #f0f0f0;
-    }
-    .unit-settings {
-      margin-bottom: 20px;
-    }
-    /* Alignement pour l'affichage des résidents */
-    .resident-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .resident-row label {
-      margin-right: 8px;
-      white-space: nowrap;
-    }
-    /* La classe spéciale pour rapprocher le dropdown du texte "Texture des repas :" */
-    .texture-label {
-      margin-right: 2px;
-    }
-    .resident-row input,
-    .resident-row select {
-      margin-right: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Liste des résidents</title>
+    <style>
+        /* Styles existants */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f7f7f7;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .back-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            padding: 8px 12px;
+            background: #3498db;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        /* Styles modal authentification */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .modal-content input {
+            width: 80%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal-content button {
+            padding: 8px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            z-index: 1000;
+            display: none;
+        }
+        .success {
+            background-color: #4CAF50;
+        }
+        .error {
+            background-color: #f44336;
+        }
+    </style>
 </head>
 <body>
-  <!-- Bouton Retour à l'accueil -->
-  <a href="index.html" class="back-button">Retour à l'accueil</a>
-
-  <!-- Vue switcher : Professionnels / Résidents -->
-  <div id="viewSwitcher">
-    <button id="btnProfessionnels">Professionnels</button> ｜
-    <button id="btnResidents">Résidents</button>
-  </div>
-
-  <!-- Bloc de configuration pour "Professionnels par Maison / Accueil de jour" -->
-  <div class="container" id="containerProfessionnelsHouse">
-    <h1>Configuration des Professionnels par Maison / Accueil de jour</h1>
-    <!-- Menu déroulant pour sélectionner la maison -->
-    <select id="houseSelect"></select>
-    <div class="pro-settings">
-      <!-- La configuration pour la maison sélectionnée sera générée ici -->
-      <div id="professionalSettings"></div>
+    <!-- Modal d'authentification -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <h2>Authentification requise</h2>
+            <input type="password" id="passwordInput" placeholder="Mot de passe">
+            <button onclick="authenticate()">Valider</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Bloc de configuration pour "Résidents par Maison / Accueil de jour" -->
-  <div class="container" id="containerResidents">
-    <h1>Configuration des Résidents par Maison / Accueil de jour</h1>
-    <!-- Menu déroulant pour sélectionner la maison -->
-    <select id="residentHouseSelect"></select>
-    <div class="pro-settings">
-      <!-- La configuration pour la maison sélectionnée sera générée ici -->
-      <div id="residentSettings"></div>
+    <!-- Notifications -->
+    <div id="successNotification" class="notification success">Opération réussie!</div>
+    <div id="errorNotification" class="notification error">Une erreur est survenue.</div>
+
+    <a href="index.html" class="back-button">Retour à l'accueil</a>
+    <div class="container">
+        <h1>Liste des résidents par unité</h1>
+        <div id="residentList"></div>
     </div>
-  </div>
 
-  <!-- Bloc de configuration pour les Professionnels par Catégorie -->
-  <div class="container" id="containerProfessionnelsCategory">
-    <h2>Configuration des Professionnels par Catégorie</h2>
-    <!-- Menu déroulant pour sélectionner la catégorie -->
-    <select id="categorySelect"></select>
-    <div class="pro-settings" id="categorySettings">
-      <!-- La configuration pour la catégorie sélectionnée sera générée ici -->
-    </div>
-  </div>
+    <script>
+        const AUTH_CONFIG = {
+            password: 'admin',
+            githubToken: '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',
+            owner: 'aciderix',
+            repo: 'Animations'
+        };
 
-  <script>
-    // Importation des modules Node.js (assurez-vous que Node est activé dans Electron)
-    const fs = require('fs');
-    const path = require('path');
-    // Chemin vers le fichier data.json situé dans le même dossier
-    const dataFilePath = path.join(__dirname, 'data.json');
+        // Gestionnaire d'authentification
+        class AuthManager {
+            constructor() {
+                this.isAuthenticated = false;
+            }
 
-    // Configuration par défaut pour les professionnels par Maison / Accueil de jour
-    let professionalsByUnit = {
-      "Maison 1": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Maison 2": ["Wojcik Julie", "Hélène Morvand", "Marie Larignon", "Simon Beneteau", "Sophie Ordronneau", "Pro 6 test", "Pro 7", "Pro 8"],
-      "Maison 3": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Maison 4": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Maison 5": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Maison 6": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Maison 7": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Accueil de jour": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"]
-    };
+            authenticate(password) {
+                if (password === AUTH_CONFIG.password) {
+                    this.isAuthenticated = true;
+                    sessionStorage.setItem('is_authenticated', 'true');
+                    return true;
+                }
+                return false;
+            }
 
-    // Nouvelle structure pour les résidents par Maison / Accueil de jour avec identifiants uniques
-    let residentsByUnit = {
-      "Maison 1": [
-        { id: "m1-r1", name: "Résident 1", texture: "standart" },
-        { id: "m1-r2", name: "Résident 2", texture: "standart" },
-        { id: "m1-r3", name: "Résident 3", texture: "standart" },
-        { id: "m1-r4", name: "Résident 4", texture: "standart" },
-        { id: "m1-r5", name: "Résident 5", texture: "standart" },
-        { id: "m1-r6", name: "Résident 6", texture: "standart" },
-        { id: "m1-r7", name: "Résident 7", texture: "standart" },
-        { id: "m1-r8", name: "Résident 8", texture: "standart" }
-      ],
-      "Maison 2": [
-        { id: "m2-r1", name: "Résident 1", texture: "standart" },
-        { id: "m2-r2", name: "Résident 2", texture: "standart" },
-        { id: "m2-r3", name: "Résident 3", texture: "standart" },
-        { id: "m2-r4", name: "Résident 4", texture: "standart" },
-        { id: "m2-r5", name: "Résident 5", texture: "standart" },
-        { id: "m2-r6", name: "Résident 6", texture: "standart" },
-        { id: "m2-r7", name: "Résident 7", texture: "standart" },
-        { id: "m2-r8", name: "Résident 8", texture: "standart" }
-      ],
-      "Maison 3": [
-        { id: "m3-r1", name: "Résident 1", texture: "standart" },
-        { id: "m3-r2", name: "Résident 2", texture: "standart" },
-        { id: "m3-r3", name: "Résident 3", texture: "standart" },
-        { id: "m3-r4", name: "Résident 4", texture: "standart" },
-        { id: "m3-r5", name: "Résident 5", texture: "standart" },
-        { id: "m3-r6", name: "Résident 6", texture: "standart" },
-        { id: "m3-r7", name: "Résident 7", texture: "standart" },
-        { id: "m3-r8", name: "Résident 8", texture: "standart" }
-      ],
-      "Maison 4": [
-        { id: "m4-r1", name: "Résident 1", texture: "standart" },
-        { id: "m4-r2", name: "Résident 2", texture: "standart" },
-        { id: "m4-r3", name: "Résident 3", texture: "standart" },
-        { id: "m4-r4", name: "Résident 4", texture: "standart" },
-        { id: "m4-r5", name: "Résident 5", texture: "standart" },
-        { id: "m4-r6", name: "Résident 6", texture: "standart" },
-        { id: "m4-r7", name: "Résident 7", texture: "standart" },
-        { id: "m4-r8", name: "Résident 8", texture: "standart" }
-      ],
-      "Maison 5": [
-        { id: "m5-r1", name: "Résident 1", texture: "standart" },
-        { id: "m5-r2", name: "Résident 2", texture: "standart" },
-        { id: "m5-r3", name: "Résident 3", texture: "standart" },
-        { id: "m5-r4", name: "Résident 4", texture: "standart" },
-        { id: "m5-r5", name: "Résident 5", texture: "standart" },
-        { id: "m5-r6", name: "Résident 6", texture: "standart" },
-        { id: "m5-r7", name: "Résident 7", texture: "standart" },
-        { id: "m5-r8", name: "Résident 8", texture: "standart" }
-      ],
-      "Maison 6": [
-        { id: "m6-r1", name: "Résident 1", texture: "standart" },
-        { id: "m6-r2", name: "Résident 2", texture: "standart" },
-        { id: "m6-r3", name: "Résident 3", texture: "standart" },
-        { id: "m6-r4", name: "Résident 4", texture: "standart" },
-        { id: "m6-r5", name: "Résident 5", texture: "standart" },
-        { id: "m6-r6", name: "Résident 6", texture: "standart" },
-        { id: "m6-r7", name: "Résident 7", texture: "standart" },
-        { id: "m6-r8", name: "Résident 8", texture: "standart" }
-      ],
-      "Maison 7": [
-        { id: "m7-r1", name: "Résident 1", texture: "standart" },
-        { id: "m7-r2", name: "Résident 2", texture: "standart" },
-        { id: "m7-r3", name: "Résident 3", texture: "standart" },
-        { id: "m7-r4", name: "Résident 4", texture: "standart" },
-        { id: "m7-r5", name: "Résident 5", texture: "standart" },
-        { id: "m7-r6", name: "Résident 6", texture: "standart" },
-        { id: "m7-r7", name: "Résident 7", texture: "standart" },
-        { id: "m7-r8", name: "Résident 8", texture: "standart" }
-      ],
-      "Accueil de jour": [
-        { id: "ad-r1", name: "Résident 1", texture: "standart" },
-        { id: "ad-r2", name: "Résident 2", texture: "standart" },
-        { id: "ad-r3", name: "Résident 3", texture: "standart" },
-        { id: "ad-r4", name: "Résident 4", texture: "standart" },
-        { id: "ad-r5", name: "Résident 5", texture: "standart" },
-        { id: "ad-r6", name: "Résident 6", texture: "standart" },
-        { id: "ad-r7", name: "Résident 7", texture: "standart" },
-        { id: "ad-r8", name: "Résident 8", texture: "standart" },
-        { id: "ad-r9", name: "Résident 9", texture: "standart" },
-        { id: "ad-r10", name: "Résident 10", texture: "standart" }
-      ]
-    };
-
-    // Configuration par défaut pour les professionnels par Catégorie
-    let professionalsByCategory = {
-      "Paramedical": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Services techniques": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Lingerie": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Animation": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
-      "Remplaçants": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"] // Ajout de la catégorie Remplaçants
-    };
-
-    // Fonction de chargement depuis data.json
-    function loadData() {
-      if (fs.existsSync(dataFilePath)) {
-        try {
-          const rawData = fs.readFileSync(dataFilePath, 'utf8');
-          const data = JSON.parse(rawData);
-          if (data.professionalsByUnit) {
-            professionalsByUnit = data.professionalsByUnit;
-          }
-          if (data.residentsByUnit) {
-            residentsByUnit = data.residentsByUnit;
-          }
-          if (data.professionalsByCategory) {
-            professionalsByCategory = data.professionalsByCategory;
-          }
-          console.log('Données chargées depuis', dataFilePath);
-        } catch (err) {
-          console.error('Erreur lors du chargement des données :', err);
+            checkAuth() {
+                return sessionStorage.getItem('is_authenticated') === 'true';
+            }
         }
-      } else {
-        console.warn('Fichier data.json introuvable. Utilisation des valeurs par défaut.');
-      }
-    }
 
-    // Fonction de sauvegarde dans data.json
-    function saveData() {
-      const data = { professionalsByUnit, residentsByUnit, professionalsByCategory };
-      try {
-        fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf8');
-        console.log('Données sauvegardées dans', dataFilePath);
-      } catch (err) {
-        console.error('Erreur lors de la sauvegarde des données :', err);
-      }
-    }
+        // Gestionnaire GitHub
+        class GitHubManager {
+            constructor() {
+                this.baseUrl = 'https://api.github.com';
+            }
 
-    // --- Configuration des Professionnels par Maison / Accueil de jour ---
-    // Peupler le menu déroulant des maisons (professionnels)
-    function populateHouseDropdown() {
-      const houseSelect = document.getElementById("houseSelect");
-      houseSelect.innerHTML = "";
-      Object.keys(professionalsByUnit).forEach(house => {
-        const option = document.createElement("option");
-        option.value = house;
-        option.textContent = house;
-        houseSelect.appendChild(option);
-      });
-    }
+            async getFileContent(path) {
+                try {
+                    const response = await fetch(`https://raw.githubusercontent.com/${AUTH_CONFIG.owner}/${AUTH_CONFIG.repo}/main/${path}`);
+                    if (!response.ok) throw new Error('Erreur lors du chargement du fichier');
+                    return await response.json();
+                } catch (error) {
+                    showError(`Erreur de chargement: ${error.message}`);
+                    return null;
+                }
+            }
 
-    // Construction dynamique de l'affichage pour une maison sélectionnée (professionnels)
-    function buildProfessionalSettings(selectedHouse) {
-      const settingsContainer = document.getElementById("professionalSettings");
-      settingsContainer.innerHTML = "";
+            async updateFile(path, content, message) {
+                try {
+                    const currentFileResponse = await fetch(
+                        `${this.baseUrl}/repos/${AUTH_CONFIG.owner}/${AUTH_CONFIG.repo}/contents/${path}`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${AUTH_CONFIG.githubToken}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        }
+                    );
+                    const currentFile = await currentFileResponse.json();
 
-      const house = selectedHouse || Object.keys(professionalsByUnit)[0];
+                    const response = await fetch(
+                        `${this.baseUrl}/repos/${AUTH_CONFIG.owner}/${AUTH_CONFIG.repo}/contents/${path}`,
+                        {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${AUTH_CONFIG.githubToken}`,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                message: message,
+                                content: btoa(JSON.stringify(content, null, 2)),
+                                sha: currentFile.sha,
+                                branch: 'main'
+                            })
+                        }
+                    );
 
-      const unitDiv = document.createElement("div");
-      unitDiv.classList.add("unit-settings");
+                    if (!response.ok) throw new Error('Erreur lors de la mise à jour');
+                    return true;
+                } catch (error) {
+                    showError(`Erreur de mise à jour: ${error.message}`);
+                    return false;
+                }
+            }
+        }
 
-      const unitTitle = document.createElement("h3");
-      unitTitle.textContent = house;
-      unitDiv.appendChild(unitTitle);
+        // Gestionnaire UI
+        const UIManager = {
+            showNotification: function(message, isError = false) {
+                const notification = document.getElementById(
+                    isError ? 'errorNotification' : 'successNotification'
+                );
+                notification.textContent = message;
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            },
 
-      professionalsByUnit[house].forEach((proName, index) => {
-        const label = document.createElement("label");
-        label.textContent = `Pro ${index + 1}: `;
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = proName;
-        input.dataset.unit = house;
-        input.dataset.index = index;
-        input.addEventListener("change", function() {
-          const unit = this.dataset.unit;
-          const idx = this.dataset.index;
-          professionalsByUnit[unit][idx] = this.value;
-          saveData();
-        });
-        unitDiv.appendChild(label);
-        unitDiv.appendChild(input);
-        unitDiv.appendChild(document.createElement("br"));
-      });
-      settingsContainer.appendChild(unitDiv);
-    }
+            showAuthModal: function() {
+                document.getElementById('authModal').style.display = 'block';
+            },
 
-    // --- Configuration des Résidents par Maison / Accueil de jour ---
-    // Peupler le menu déroulant des maisons (résidents)
-    function populateResidentHouseDropdown() {
-      const residentHouseSelect = document.getElementById("residentHouseSelect");
-      residentHouseSelect.innerHTML = "";
-      Object.keys(residentsByUnit).forEach(house => {
-        const option = document.createElement("option");
-        option.value = house;
-        option.textContent = house;
-        residentHouseSelect.appendChild(option);
-      });
-    }
+            hideAuthModal: function() {
+                document.getElementById('authModal').style.display = 'none';
+            },
 
-    // Construction dynamique de l'affichage pour une maison sélectionnée (résidents)
-    function buildResidentSettings(selectedHouse) {
-      const settingsContainer = document.getElementById("residentSettings");
-      settingsContainer.innerHTML = "";
+            displayResidents: function(data) {
+                const container = document.getElementById('residentList');
+                let html = '';
 
-      const house = selectedHouse || Object.keys(residentsByUnit)[0];
+                for (const unit in data.residentsByUnit) {
+                    html += `
+                        <h2>Unité ${unit}</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
 
-      const unitDiv = document.createElement("div");
-      unitDiv.classList.add("unit-settings");
+                    data.residentsByUnit[unit].forEach(resident => {
+                        html += `
+                            <tr>
+                                <td>${resident}</td>
+                                <td>
+                                    <button onclick="editResident('${unit}', '${resident}')">Modifier</button>
+                                    <button onclick="deleteResident('${unit}', '${resident}')">Supprimer</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
 
-      const unitTitle = document.createElement("h3");
-      unitTitle.textContent = house;
-      unitDiv.appendChild(unitTitle);
+                    html += `
+                            </tbody>
+                        </table>
+                        <button onclick="addResident('${unit}')">Ajouter un résident</button>
+                    `;
+                }
 
-      residentsByUnit[house].forEach((resident, index) => {
-        // Création d'une ligne pour chaque résident
-        const rowDiv = document.createElement("div");
-        rowDiv.classList.add("resident-row");
+                container.innerHTML = html;
+            }
+        };
 
-        // Label pour le nom du résident (sans afficher l'ID)
-        const label = document.createElement("label");
-        label.textContent = `Résident ${index + 1} : `;
-        rowDiv.appendChild(label);
+        // Instances des gestionnaires
+        const auth = new AuthManager();
+        const github = new GitHubManager();
 
-        // Input pour le nom du résident
-        const nameInput = document.createElement("input");
-        nameInput.type = "text";
-        nameInput.value = resident.name;
-        nameInput.dataset.unit = house;
-        nameInput.dataset.id = resident.id;
-        nameInput.addEventListener("change", function() {
-          const unit = this.dataset.unit;
-          const id = this.dataset.id;
-          const res = residentsByUnit[unit].find(r => r.id === id);
-          if (res) {
-            res.name = this.value;
-            saveData();
-          }
-        });
-        rowDiv.appendChild(nameInput);
+        // Fonctions utilitaires
+        function showSuccess(message) {
+            UIManager.showNotification(message, false);
+        }
 
-        // Label pour "Texture des repas :" avec la classe spécifique pour réduire la marge
-        const textureLabel = document.createElement("label");
-        textureLabel.textContent = "Texture des repas : ";
-        textureLabel.classList.add("texture-label");
-        rowDiv.appendChild(textureLabel);
+        function showError(message) {
+            UIManager.showNotification(message, true);
+        }
 
-        // Dropdown pour la texture des repas
-        const textureSelect = document.createElement("select");
-        textureSelect.dataset.unit = house;
-        textureSelect.dataset.id = resident.id;
-        ["standart", "Haché", "Mixé"].forEach(optionValue => {
-          const option = document.createElement("option");
-          option.value = optionValue;
-          option.textContent = optionValue;
-          textureSelect.appendChild(option);
-        });
-        textureSelect.value = resident.texture || "standart";
-        textureSelect.addEventListener("change", function() {
-          const unit = this.dataset.unit;
-          const id = this.dataset.id;
-          const res = residentsByUnit[unit].find(r => r.id === id);
-          if (res) {
-            res.texture = this.value;
-            saveData();
-          }
-        });
-        rowDiv.appendChild(textureSelect);
+        // Fonction d'authentification
+        function authenticate() {
+            const password = document.getElementById('passwordInput').value;
+            if (auth.authenticate(password)) {
+                UIManager.hideAuthModal();
+                initializeApp();
+            } else {
+                showError('Mot de passe incorrect');
+            }
+        }
 
-        unitDiv.appendChild(rowDiv);
-      });
-      settingsContainer.appendChild(unitDiv);
-    }
+        // Fonctions de gestion des résidents
+        async function addResident(unit) {
+            if (!auth.checkAuth()) {
+                UIManager.showAuthModal();
+                return;
+            }
 
-    // --- Configuration des Professionnels par Catégorie ---
-    // Peupler le menu déroulant des catégories
-    function populateCategoryDropdown() {
-      const categorySelect = document.getElementById("categorySelect");
-      categorySelect.innerHTML = "";
-      Object.keys(professionalsByCategory).forEach(category => {
-        const option = document.createElement("option");
-        option.value = category;
-        option.textContent = category;
-        categorySelect.appendChild(option);
-      });
-    }
+            const name = prompt('Nom du résident:');
+            if (!name) return;
 
-    // Construction dynamique de l'affichage pour une catégorie sélectionnée
-    function buildCategoryProfessionalSettings(selectedCategory) {
-      const categoryContainer = document.getElementById("categorySettings");
-      categoryContainer.innerHTML = "";
+            const data = await github.getFileContent('data.json');
+            if (!data) return;
 
-      const category = selectedCategory || Object.keys(professionalsByCategory)[0];
+            if (!data.residentsByUnit[unit]) {
+                data.residentsByUnit[unit] = [];
+            }
+            data.residentsByUnit[unit].push(name);
 
-      const catDiv = document.createElement("div");
-      catDiv.classList.add("unit-settings");
+            const success = await github.updateFile(
+                'data.json',
+                data,
+                `Ajout du résident ${name} à l'unité ${unit}`
+            );
 
-      const catTitle = document.createElement("h3");
-      catTitle.textContent = category;
-      catDiv.appendChild(catTitle);
+            if (success) {
+                showSuccess('Résident ajouté avec succès');
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        }
 
-      professionalsByCategory[category].forEach((proName, index) => {
-        const label = document.createElement("label");
-        label.textContent = `Pro ${index + 1}: `;
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = proName;
-        input.dataset.category = category;
-        input.dataset.index = index;
-        input.addEventListener("change", function() {
-          const cat = this.dataset.category;
-          const idx = this.dataset.index;
-          professionalsByCategory[cat][idx] = this.value;
-          saveData();
-        });
-        catDiv.appendChild(label);
-        catDiv.appendChild(input);
-        catDiv.appendChild(document.createElement("br"));
-      });
-      categoryContainer.appendChild(catDiv);
-    }
+        async function editResident(unit, oldName) {
+            if (!auth.checkAuth()) {
+                UIManager.showAuthModal();
+                return;
+            }
 
-    // Au chargement de la page, on charge et affiche toutes les configurations
-    window.addEventListener("load", function() {
-      loadData();
+            const newName = prompt('Nouveau nom:', oldName);
+            if (!newName || newName === oldName) return;
 
-      // Configuration pour les professionnels par Maison / Accueil de jour
-      populateHouseDropdown();
-      const houseSelect = document.getElementById("houseSelect");
-      buildProfessionalSettings(houseSelect.value);
-      houseSelect.addEventListener("change", function() {
-        buildProfessionalSettings(this.value);
-      });
+            const data = await github.getFileContent('data.json');
+            if (!data) return;
 
-      // Configuration pour les résidents par Maison / Accueil de jour
-      populateResidentHouseDropdown();
-      const residentHouseSelect = document.getElementById("residentHouseSelect");
-      buildResidentSettings(residentHouseSelect.value);
-      residentHouseSelect.addEventListener("change", function() {
-        buildResidentSettings(this.value);
-      });
+            const index = data.residentsByUnit[unit].indexOf(oldName);
+            if (index !== -1) {
+                data.residentsByUnit[unit][index] = newName;
 
-      // Configuration pour les professionnels par Catégorie
-      populateCategoryDropdown();
-      const categorySelect = document.getElementById("categorySelect");
-      buildCategoryProfessionalSettings(categorySelect.value);
-      categorySelect.addEventListener("change", function() {
-        buildCategoryProfessionalSettings(this.value);
-      });
+                const success = await github.updateFile(
+                    'data.json',
+                    data,
+                    `Modification du résident ${oldName} en ${newName}`
+                );
 
-      // --- Gestion du changement d'affichage via les boutons ---
-      const btnProfessionnels = document.getElementById("btnProfessionnels");
-      const btnResidents = document.getElementById("btnResidents");
-      const containerProHouse = document.getElementById("containerProfessionnelsHouse");
-      const containerProCategory = document.getElementById("containerProfessionnelsCategory");
-      const containerResidents = document.getElementById("containerResidents");
+                if (success) {
+                    showSuccess('Résident modifié avec succès');
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+            }
+        }
 
-      // Affichage par défaut : Professionnels
-      containerProHouse.style.display = "block";
-      containerProCategory.style.display = "block";
-      containerResidents.style.display = "none";
+        async function deleteResident(unit, name) {
+            if (!auth.checkAuth()) {
+                UIManager.showAuthModal();
+                return;
+            }
 
-      btnProfessionnels.addEventListener("click", function() {
-        containerProHouse.style.display = "block";
-        containerProCategory.style.display = "block";
-        containerResidents.style.display = "none";
-      });
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer ${name} ?`)) return;
 
-      btnResidents.addEventListener("click", function() {
-        containerProHouse.style.display = "none";
-        containerProCategory.style.display = "none";
-        containerResidents.style.display = "block";
-      });
-    });
-  </script>
+            const data = await github.getFileContent('data.json');
+            if (!data) return;
+
+            const index = data.residentsByUnit[unit].indexOf(name);
+            if (index !== -1) {
+                data.residentsByUnit[unit].splice(index, 1);
+
+                const success = await github.updateFile(
+                    'data.json',
+                    data,
+                    `Suppression du résident ${name}`
+                );
+
+                if (success) {
+                    showSuccess('Résident supprimé avec succès');
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+            }
+        }
+
+        // Initialisation de l'application
+        async function initializeApp() {
+            const data = await github.getFileContent('data.json');
+            if (data) {
+                UIManager.displayResidents(data);
+            }
+        }
+
+        // Au chargement de la page
+        window.onload = function() {
+            if (!auth.checkAuth()) {
+                UIManager.showAuthModal();
+            } else {
+                initializeApp();
+            }
+        };
+    </script>
 </body>
-</html>
+</html> 
