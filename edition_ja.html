@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Planning des Activités - Sauvegarde & Export</title>
+  <style>
+    /* Bouton Retour à l'accueil */
+    .back-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      padding: 8px 12px;
+      background: #3498db;
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 14px;
+      z-index: 1000;
+    }
+    /* Styles généraux */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f7f7f7;
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    form {
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    form label {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    form select,
+    form input[type="time"],
+    form input[type="text"] {
+      padding: 5px;
+      margin-right: 20px;
+      min-width: 150px;
+      margin-bottom: 10px;
+    }
+    form button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+      font-size: 1em;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 2px;
+      text-align: center;
+      min-width: 100px;
+    }
+    th {
+      background-color: #e2e2e2;
+    }
+    button.delete-btn {
+      background: #d9534f;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    button.delete-btn:hover {
+      background: #c9302c;
+    }
+    /* Ligne de séparation entre groupes */
+    tr.separator td {
+      border: none;
+      height: 10px;
+      background-color: #fff;
+      padding: 0;
+    }
+    /* Nouvelle classe pour aligner les éléments en ligne */
+    .activity-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    /* Règle spécifique pour gérer la largeur des inputs de type time */
+    form input[type="time"] {
+      width: 80px;
+      min-width: 80px;
+    }
+    /* Bouton Impression */
+    .export-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #5cb85c;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .export-btn:hover {
+      background: #4cae4c;
+    }
+    /* Style pour le champ de recherche */
+    #searchInput {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 20px;
+      font-size: 1em;
+      border: 1px solid #aaa;
+      border-radius: 3px;
+    }
+  </style>
+  <!-- La librairie html2pdf n'est plus utilisée, mais peut être laissée si nécessaire -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <!-- Bouton Retour à l'accueil en haut à gauche -->
+  <a href="index.html" class="back-button">Retour à l'accueil</a>
+
+  <div class="container">
+    <h1>Planning des Journées Aménagées sur 12 Types</h1>
+
+    <!-- Formulaire d'ajout d'activités -->
+    <form id="activityForm">
+      <!-- Sélection de la maison et du professionnel -->
+      <div>
+        <label for="unit">Maison :</label>
+        <select id="unit" required>
+          <option value="">--Choisir une maison--</option>
+          <option value="Maison 1">Maison 1</option>
+          <option value="Maison 2">Maison 2</option>
+          <option value="Maison 3">Maison 3</option>
+          <option value="Maison 4">Maison 4</option>
+          <option value="Maison 5">Maison 5</option>
+          <option value="Maison 6">Maison 6</option>
+          <option value="Maison 7">Maison 7</option>
+          <option value="Accueil de jour">Accueil de jour</option>
+        </select>
+
+        <label for="pro">Professionnel :</label>
+        <select id="pro" required>
+          <option value="">--Sélectionnez d'abord la maison--</option>
+        </select>
+      </div>
+
+      <!-- Zone de séries d'activités -->
+      <div id="activitySeriesContainer">
+        <!-- Première série d'activité -->
+        <div class="activity-series">
+          <div class="activity-row">
+            <label>Type :</label>
+            <select class="week" required>
+              <option value="">--Choisir un type--</option>
+              <option value="1">Type 1</option>
+              <option value="2">Type 2</option>
+              <option value="3">Type 3</option>
+              <option value="4">Type 4</option>
+              <option value="5">Type 5</option>
+              <option value="6">Type 6</option>
+              <option value="7">Type 7</option>
+              <option value="8">Type 8</option>
+              <option value="9">Type 9</option>
+              <option value="10">Type 10</option>
+              <option value="11">Type 11</option>
+              <option value="12">Type 12</option>
+            </select>
+
+            <label>Jour :</label>
+            <select class="day" required>
+              <option value="">--Choisir un jour--</option>
+              <option value="Lundi">Lundi</option>
+              <option value="Mardi">Mardi</option>
+              <option value="Mercredi">Mercredi</option>
+              <option value="Jeudi">Jeudi</option>
+              <option value="Vendredi">Vendredi</option>
+            </select>
+
+            <label>Activité :</label>
+            <select class="activity" required>
+              <option value="">--Choisir une activité--</option>
+              <option value="journee_amenee">Journée aménagée</option>
+              <option value="temps_maison">Temps maison</option>
+              <option value="repas">Repas</option>
+              <option value="ecrits_admin">Écrits administratifs</option>
+            </select>
+
+            <div id="repasOptions" style="display: none;">
+              <label><input type="checkbox" class="repasCuisineCheckbox" value="repas_cuisine"> Repas cuisine</label>
+              <label><input type="checkbox" class="repasExterieurCheckbox" value="repas_exterieur"> Repas extérieur</label>
+            </div>
+
+            <label>Début :</label>
+            <input type="time" class="startTime" required>
+
+            <label>Fin :</label>
+            <input type="time" class="endTime" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bouton pour ajouter une nouvelle série -->
+      <div>
+        <button type="button" id="addSeriesBtn">+</button>
+      </div>
+
+      <!-- Bouton de validation -->
+      <div>
+        <button type="submit">Ajouter les activités</button>
+      </div>
+    </form>
+
+    <!-- Champ de recherche -->
+    <input type="text" id="searchInput" placeholder="Recherche..." />
+
+    <!-- Tableau récapitulatif -->
+    <h2>Liste des journées aménagées</h2>
+    <table id="activitiesTable">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Jour</th>
+          <th>Maison</th>
+          <th>Professionnel</th>
+          <th>Activité</th>
+          <th>Début</th>
+          <th>Fin</th>
+          <th class="no-print">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Les activités enregistrées s'afficheront ici -->
+      </tbody>
+    </table>
+
+    <!-- Bouton Impression -->
+    <button class="export-btn" id="printBtn">Imprimer</button>
+  </div>
+
+  <script>
+    const fs = require('fs');
+    const path = require('path');
+    // Fichiers utilisés
+    const professionalsFilePath = path.join(__dirname, 'data.json');  // Contient la liste des professionnels
+    const activitiesFilePath   = path.join(__dirname, 'ja.json');    // Utilisé pour charger/enregistrer les activités
+
+    /* -------------------------------
+       Chargement des données depuis les fichiers JSON
+    ------------------------------- */
+    let professionalsByUnit = {
+      "Maison 1": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 2": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 3": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 4": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 5": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 6": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 7": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Accueil de jour": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"]
+    };
+
+    let activities = [];  // Liste des activités (sera lue et sauvegardée dans ja.json)
+
+    function loadData() {
+      // Charger la liste des professionnels depuis data.json (lecture seule)
+      if (fs.existsSync(professionalsFilePath)) {
+        try {
+          const rawData = fs.readFileSync(professionalsFilePath, 'utf8');
+          const data = JSON.parse(rawData);
+          // On suppose que data.json contient un objet avec la clé "professionalsByUnit"
+          professionalsByUnit = data.professionalsByUnit || professionalsByUnit;
+          console.log('Liste des professionnels chargée depuis', professionalsFilePath);
+        } catch (err) {
+          console.error('Erreur lors du chargement des professionnels :', err);
+        }
+      }
+
+      // Charger la liste des activités depuis ja.json
+      if (fs.existsSync(activitiesFilePath)) {
+        try {
+          const rawData = fs.readFileSync(activitiesFilePath, 'utf8');
+          const data = JSON.parse(rawData);
+          activities = data.activities || [];
+          console.log('Liste des activités chargée depuis', activitiesFilePath);
+        } catch (err) {
+          console.error('Erreur lors du chargement des activités :', err);
+        }
+      }
+    }
+
+    /* -------------------------------
+       Sauvegarde de la liste des activités dans ja.json
+    ------------------------------- */
+    function saveActivities() {
+      const data = {
+        activities: activities
+      };
+      try {
+        fs.writeFileSync(activitiesFilePath, JSON.stringify(data, null, 2), 'utf8');
+        console.log('Activités sauvegardées dans', activitiesFilePath);
+      } catch (err) {
+        console.error('Erreur lors de la sauvegarde des activités :', err);
+      }
+    }
+
+    /* -------------------------------
+       Gestion des professionnels par maison
+    ------------------------------- */
+    function updateProfessionalDropdown() {
+      const unitSelect = document.getElementById("unit");
+      const proSelect = document.getElementById("pro");
+      const selectedUnit = unitSelect.value;
+      proSelect.innerHTML = "";
+      if (!selectedUnit || !professionalsByUnit[selectedUnit]) {
+        proSelect.innerHTML = `<option value="">--Sélectionnez d'abord la maison--</option>`;
+        return;
+      }
+      professionalsByUnit[selectedUnit].forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        proSelect.appendChild(option);
+      });
+    }
+    document.getElementById("unit").addEventListener("change", updateProfessionalDropdown);
+
+    /* -------------------------------
+       Gestion du formulaire et du tableau d'activités
+    ------------------------------- */
+    let unitOrder = {
+      "Maison 1": 1,
+      "Maison 2": 2,
+      "Maison 3": 3,
+      "Maison 4": 4,
+      "Maison 5": 5,
+      "Maison 6": 6,
+      "Maison 7": 7,
+      "Accueil de jour": 8
+    };
+    const dayOrder = { "Lundi": 1, "Mardi": 2, "Mercredi": 3, "Jeudi": 4, "Vendredi": 5 };
+    const unitColors = {
+      "Maison 1": "#e0f7fa",
+      "Maison 2": "#e8f5e9",
+      "Maison 3": "#fffde7",
+      "Maison 4": "#eceff1",
+      "Maison 5": "#f3e5f5",
+      "Maison 6": "#e1f5fe",
+      "Maison 7": "#fbe9e7",
+      "Accueil de jour": "#fce4ec"
+    };
+    const activityLabels = {
+      "journee_amenee": "Journée aménagée",
+      "temps_maison": "Temps maison",
+      "repas": "Repas", // Changed from repas_exterieur
+      "repas_cuisine": "Repas cuisine", // New label
+      "repas_exterieur": "Repas extérieur", // New label
+      "ecrits_admin": "Écrits administratifs"
+    };
+
+    const activityForm = document.getElementById("activityForm");
+    const activitiesTableBody = document.getElementById("activitiesTable").querySelector("tbody");
+
+    activityForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const unit = document.getElementById("unit").value;
+      const pro = document.getElementById("pro").value;
+
+      if (!unit || !pro) {
+        alert("Veuillez sélectionner une maison et un professionnel.");
+        return;
+      }
+
+      const seriesElements = document.querySelectorAll(".activity-series");
+      let allFieldsFilled = true;
+
+      seriesElements.forEach(series => {
+        const week      = series.querySelector(".week").value;
+        const day       = series.querySelector(".day").value;
+        let activity  = series.querySelector(".activity").value;
+        let finalActivityValue = activity; // Default value
+        const startTime = series.querySelector(".startTime").value;
+        const endTime   = series.querySelector(".endTime").value;
+
+        if (!week || !day || !activity || !startTime || !endTime) {
+          allFieldsFilled = false;
+        }
+        if (startTime >= endTime) {
+          alert("L'heure de début doit être antérieure à l'heure de fin.");
+          allFieldsFilled = false;
+        }
+
+        if (activity === "repas") {
+          const repasCuisineChecked = series.querySelector(".repasCuisineCheckbox").checked;
+          const repasExterieurChecked = series.querySelector(".repasExterieurCheckbox").checked;
+
+          if (repasCuisineChecked) {
+            finalActivityValue = "repas_cuisine";
+          } else if (repasExterieurChecked) {
+            finalActivityValue = "repas_exterieur";
+          } else {
+            allFieldsFilled = false; // If 'repas' is selected but no checkbox, consider it not filled
+            alert("Veuillez spécifier le type de repas (cuisine ou extérieur).");
+          }
+        }
+
+        if (allFieldsFilled) {
+          const id = Date.now() + Math.random();
+          activities.push({ id, week, day, unit, pro, activity: finalActivityValue, startTime, endTime }); // use finalActivityValue
+        }
+      });
+
+      if (!allFieldsFilled) {
+        alert("Veuillez remplir correctement tous les champs.");
+        return;
+      }
+
+      renderActivities();
+      saveActivities();  // Sauvegarde uniquement des activités dans ja.json
+
+      // Réinitialisation du formulaire et de la zone des séries d'activités
+      activityForm.reset();
+      document.getElementById("pro").innerHTML = `<option value="">--Sélectionnez d'abord la maison--</option>`;
+      const activitySeriesContainer = document.getElementById("activitySeriesContainer");
+      activitySeriesContainer.innerHTML = "";
+      activitySeriesContainer.appendChild(createActivitySeries());
+    });
+
+    function deleteActivity(id) {
+      activities = activities.filter(act => act.id !== id);
+      renderActivities();
+      saveActivities();
+    }
+
+    function renderActivities() {
+      // Récupération de la valeur de recherche (en minuscules)
+      const searchInput = document.getElementById("searchInput");
+      const searchValue = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+      // Filtrer les activités en fonction du texte recherché
+      let filteredActivities = activities.filter(act => {
+        const actText = (
+          act.week + " " +
+          act.day + " " +
+          act.unit + " " +
+          act.pro + " " +
+          (activityLabels[act.activity] || act.activity) + " " +
+          act.startTime + " " +
+          act.endTime
+        ).toLowerCase();
+        return actText.includes(searchValue);
+      });
+
+      // Tri par Type (week), puis par Jour et par Heure de début
+      filteredActivities.sort((a, b) => {
+        let diff = parseInt(a.week) - parseInt(b.week);
+        if (diff !== 0) return diff;
+        diff = dayOrder[a.day] - dayOrder[b.day];
+        if (diff !== 0) return diff;
+        return a.startTime.localeCompare(b.startTime);
+      });
+
+      activitiesTableBody.innerHTML = "";
+      let previousType = null;
+      let previousDay = null;
+
+      filteredActivities.forEach(act => {
+        // Insertion d'une ligne de séparation lors du changement de type
+        if (act.week !== previousType) {
+          if (previousType !== null) {
+            const extraRow = document.createElement("tr");
+            extraRow.classList.add("separator");
+            const extraCell = document.createElement("td");
+            extraCell.setAttribute("colspan", "8");
+            extraCell.style.height = "15px";
+            extraRow.appendChild(extraCell);
+            activitiesTableBody.appendChild(extraRow);
+          }
+          const typeSeparatorRow = document.createElement("tr");
+          typeSeparatorRow.classList.add("separator");
+          const typeSeparatorCell = document.createElement("td");
+          typeSeparatorCell.setAttribute("colspan", "8");
+          typeSeparatorCell.style.backgroundColor = "#ddd";
+          typeSeparatorCell.style.fontWeight = "bold";
+          typeSeparatorCell.style.textAlign = "left";
+          typeSeparatorCell.textContent = "Type " + act.week;
+          typeSeparatorRow.appendChild(typeSeparatorCell);
+          activitiesTableBody.appendChild(typeSeparatorRow);
+          previousType = act.week;
+          previousDay = null; // Réinitialisation pour le nouveau type
+        }
+        // Séparation lors du changement de jour dans le même type
+        if (act.day !== previousDay) {
+          const daySeparatorRow = document.createElement("tr");
+          daySeparatorRow.classList.add("separator");
+          const daySeparatorCell = document.createElement("td");
+          daySeparatorCell.setAttribute("colspan", "8");
+          daySeparatorCell.style.backgroundColor = "#eee";
+          daySeparatorCell.style.fontStyle = "italic";
+          daySeparatorCell.style.textAlign = "left";
+          daySeparatorCell.textContent = act.day;
+          daySeparatorRow.appendChild(daySeparatorCell);
+          activitiesTableBody.appendChild(daySeparatorRow);
+          previousDay = act.day;
+        }
+
+        // Création de la ligne d'activité
+        const newRow = document.createElement("tr");
+        newRow.style.backgroundColor = unitColors[act.unit] || "#fff";
+
+        const cellWeek = document.createElement("td");
+        cellWeek.textContent = act.week;
+        newRow.appendChild(cellWeek);
+
+        const cellDay = document.createElement("td");
+        cellDay.textContent = act.day;
+        newRow.appendChild(cellDay);
+
+        const cellUnit = document.createElement("td");
+        cellUnit.textContent = act.unit;
+        newRow.appendChild(cellUnit);
+
+        const cellPro = document.createElement("td");
+        cellPro.textContent = act.pro;
+        newRow.appendChild(cellPro);
+
+        const cellActivity = document.createElement("td");
+        cellActivity.textContent = activityLabels[act.activity] || act.activity;
+        newRow.appendChild(cellActivity);
+
+        const cellStart = document.createElement("td");
+        cellStart.textContent = act.startTime;
+        newRow.appendChild(cellStart);
+
+        const cellEnd = document.createElement("td");
+        cellEnd.textContent = act.endTime;
+        newRow.appendChild(cellEnd);
+
+        const cellActions = document.createElement("td");
+        cellActions.classList.add("no-print");
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Supprimer";
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.addEventListener("click", function() { deleteActivity(act.id); });
+        cellActions.appendChild(deleteBtn);
+        newRow.appendChild(cellActions);
+
+        activitiesTableBody.appendChild(newRow);
+      });
+    }
+
+    function createActivitySeries() {
+      const seriesDiv = document.createElement("div");
+      seriesDiv.classList.add("activity-series");
+      seriesDiv.innerHTML = `
+        <div class="activity-row">
+          <label>Type :</label>
+          <select class="week" required>
+            <option value="">--Choisir un type--</option>
+            <option value="1">Type 1</option>
+            <option value="2">Type 2</option>
+            <option value="3">Type 3</option>
+            <option value="4">Type 4</option>
+            <option value="5">Type 5</option>
+            <option value="6">Type 6</option>
+            <option value="7">Type 7</option>
+            <option value="8">Type 8</option>
+            <option value="9">Type 9</option>
+            <option value="10">Type 10</option>
+            <option value="11">Type 11</option>
+            <option value="12">Type 12</option>
+          </select>
+
+          <label>Jour :</label>
+          <select class="day" required>
+            <option value="">--Choisir un jour--</option>
+            <option value="Lundi">Lundi</option>
+            <option value="Mardi">Mardi</option>
+            <option value="Mercredi">Mercredi</option>
+            <option value="Jeudi">Jeudi</option>
+            <option value="Vendredi">Vendredi</option>
+          </select>
+
+          <label>Activité :</label>
+          <select class="activity" required>
+            <option value="">--Choisir une activité--</option>
+            <option value="journee_amenee">Journée aménagée</option>
+            <option value="temps_maison">Temps maison</option>
+            <option value="repas">Repas</option>
+            <option value="ecrits_admin">Écrits administratifs</option>
+          </select>
+
+          <div id="repasOptions" style="display: none;">
+            <label><input type="checkbox" class="repasCuisineCheckbox" value="repas_cuisine"> Repas cuisine</label>
+            <label><input type="checkbox" class="repasExterieurCheckbox" value="repas_exterieur"> Repas extérieur</label>
+          </div>
+
+          <label>Début :</label>
+          <input type="time" class="startTime" required>
+
+          <label>Fin :</label>
+          <input type="time" class="endTime" required>
+        </div>
+      `;
+      return seriesDiv;
+    }
+
+    document.getElementById("addSeriesBtn").addEventListener("click", function() {
+      const container = document.getElementById("activitySeriesContainer");
+      container.appendChild(createActivitySeries());
+      // Add event listener after adding new series
+      attachActivityChangeListener(container.lastElementChild.querySelector(".activity"));
+    });
+
+    function attachActivityChangeListener(activitySelect) {
+      activitySelect.addEventListener("change", function() {
+        const repasOptionsDiv = this.closest('.activity-series').querySelector("#repasOptions");
+        if (this.value === "repas") {
+          repasOptionsDiv.style.display = "block";
+        } else {
+          repasOptionsDiv.style.display = "none";
+        }
+      });
+    }
+
+    /* -------------------------------
+       Bouton d'impression
+    ------------------------------- */
+    document.getElementById("printBtn").addEventListener("click", function() {
+      const titleElement = document.querySelector("h2");
+      const tableElement = document.getElementById("activitiesTable");
+
+      if (!titleElement || !tableElement) {
+        alert("Contenu à imprimer non trouvé.");
+        return;
+      }
+
+      const printContents = titleElement.outerHTML + tableElement.outerHTML;
+
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow.document.write('<html><head><title>Impression</title>');
+      printWindow.document.write('<style>');
+      printWindow.document.write('body { font-family: Arial, sans-serif; margin: 20px; }');
+      printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 1em; }');
+      printWindow.document.write('th, td { border: 1px solid #aaa; padding: 2px; text-align: center; }');
+      printWindow.document.write('th { background-color: #e2e2e2; }');
+      printWindow.document.write('@media print { * { -webkit-print-color-adjust: exact; } .no-print { display: none; } }');
+      printWindow.document.write('</style>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write(printContents);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    });
+
+    /* -------------------------------
+       Initialisation au chargement de la page
+    ------------------------------- */
+    window.addEventListener("load", function() {
+      loadData();
+      renderActivities();
+      // Actualiser le tableau dès que l'utilisateur saisit une recherche
+      document.getElementById("searchInput").addEventListener("input", renderActivities);
+
+      // Attach event listener to initial activity dropdown
+      const initialActivitySelect = document.querySelector(".activity-series .activity");
+      attachActivityChangeListener(initialActivitySelect);
+    });
+  </script>
+</body>
+</html>

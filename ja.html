@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des Journées Aménagées</title>
+  <style>
+    /* Bouton Retour à l'accueil */
+    .back-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      padding: 8px 12px;
+      background: #3498db;
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 14px;
+      z-index: 1000;
+    }
+    /* Styles généraux */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f7f7f7;
+    }
+    h2 {
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    /* Champ de recherche */
+    #searchInput {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 20px;
+      font-size: 1em;
+      border: 1px solid #aaa;
+      border-radius: 3px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+      font-size: 1em;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 2px;
+      text-align: center;
+      min-width: 100px;
+    }
+    th {
+      background-color: #e2e2e2;
+    }
+    /* Ligne de séparation entre groupes */
+    tr.separator td {
+      border: none;
+      height: 10px;
+      background-color: #fff;
+      padding: 0;
+    }
+    /* Bouton Impression */
+    .export-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #5cb85c;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .export-btn:hover {
+      background: #4cae4c;
+    }
+  </style>
+</head>
+<body>
+  <!-- Bouton Retour à l'accueil -->
+  <a href="index.html" class="back-button">Retour à l'accueil</a>
+
+  <div class="container">
+    <!-- Titre et champ de recherche -->
+    <h2>Liste des journées aménagées</h2>
+    <input type="text" id="searchInput" placeholder="Recherche..." />
+
+    <!-- Tableau récapitulatif -->
+    <table id="activitiesTable">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Jour</th>
+          <th>Maison</th>
+          <th>Professionnel</th>
+          <th>Activité</th>
+          <th>Début</th>
+          <th>Fin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Les activités enregistrées s'afficheront ici -->
+      </tbody>
+    </table>
+    <!-- Bouton d'impression -->
+    <button class="export-btn" id="printBtn">Imprimer</button>
+  </div>
+
+  <script>
+    // Les modules Node sont accessibles dans Electron (nodeIntegration activé)
+    const fs = require('fs');
+    const path = require('path');
+    // On récupère la liste des activités depuis ja.json
+    const activitiesFilePath = path.join(__dirname, 'ja.json');
+
+    // Variable globale pour stocker les activités
+    let activities = [];
+
+    // Chargement des activités depuis ja.json
+    function loadData() {
+      if (fs.existsSync(activitiesFilePath)) {
+        try {
+          const rawData = fs.readFileSync(activitiesFilePath, 'utf8');
+          const data = JSON.parse(rawData);
+          activities = data.activities || [];
+          console.log('Données chargées depuis', activitiesFilePath);
+        } catch (err) {
+          console.error('Erreur lors du chargement des données :', err);
+        }
+      }
+    }
+
+    // Pour le tri et l'affichage
+    const dayOrder = { "Lundi": 1, "Mardi": 2, "Mercredi": 3, "Jeudi": 4, "Vendredi": 5 };
+    const unitColors = {
+      "Maison 1": "#e0f7fa",
+      "Maison 2": "#e8f5e9",
+      "Maison 3": "#fffde7",
+      "Maison 4": "#eceff1",
+      "Maison 5": "#f3e5f5",
+      "Maison 6": "#e1f5fe",
+      "Maison 7": "#fbe9e7",
+      "Accueil de jour": "#fce4ec"
+    };
+    const activityLabels = {
+      "journee_amenee": "Journée aménagée",
+      "temps_maison": "Temps maison",
+      "repas_exterieur": "Repas extérieur",
+      "ecrits_admin": "Écrits administratifs"
+    };
+
+    const activitiesTableBody = document.querySelector("#activitiesTable tbody");
+
+    // Rendu du tableau avec tri, séparateurs et filtrage selon la recherche
+    function renderActivities() {
+      // Récupérer la valeur saisie dans le champ de recherche (en minuscules)
+      const searchInput = document.getElementById("searchInput");
+      const searchValue = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+      // Filtrer les activités selon le texte recherché
+      const filteredActivities = activities.filter(act => {
+        const actText = (
+          act.week + " " +
+          act.day + " " +
+          act.unit + " " +
+          act.pro + " " +
+          (activityLabels[act.activity] || act.activity) + " " +
+          act.startTime + " " +
+          act.endTime
+        ).toLowerCase();
+        return actText.includes(searchValue);
+      });
+
+      // Tri par type (champ "week"), puis par jour et heure de début
+      filteredActivities.sort((a, b) => {
+        let diff = parseInt(a.week) - parseInt(b.week);
+        if (diff !== 0) return diff;
+        diff = dayOrder[a.day] - dayOrder[b.day];
+        if (diff !== 0) return diff;
+        return a.startTime.localeCompare(b.startTime);
+      });
+
+      // Construction du tableau
+      activitiesTableBody.innerHTML = "";
+      let previousType = null;
+      let previousDay = null;
+
+      filteredActivities.forEach(act => {
+        // Insertion d'une ligne de séparation lors d'un changement de type
+        if (act.week !== previousType) {
+          if (previousType !== null) {
+            const extraRow = document.createElement("tr");
+            extraRow.classList.add("separator");
+            const extraCell = document.createElement("td");
+            extraCell.setAttribute("colspan", "7");
+            extraCell.style.height = "15px";
+            extraRow.appendChild(extraCell);
+            activitiesTableBody.appendChild(extraRow);
+          }
+          const typeSeparatorRow = document.createElement("tr");
+          typeSeparatorRow.classList.add("separator");
+          const typeSeparatorCell = document.createElement("td");
+          typeSeparatorCell.setAttribute("colspan", "7");
+          typeSeparatorCell.style.backgroundColor = "#ddd";
+          typeSeparatorCell.style.fontWeight = "bold";
+          typeSeparatorCell.style.textAlign = "left";
+          typeSeparatorCell.textContent = "Type " + act.week;
+          typeSeparatorRow.appendChild(typeSeparatorCell);
+          activitiesTableBody.appendChild(typeSeparatorRow);
+          previousType = act.week;
+          previousDay = null;
+        }
+        // Séparation lors d'un changement de jour dans le même type
+        if (act.day !== previousDay) {
+          const daySeparatorRow = document.createElement("tr");
+          daySeparatorRow.classList.add("separator");
+          const daySeparatorCell = document.createElement("td");
+          daySeparatorCell.setAttribute("colspan", "7");
+          daySeparatorCell.style.backgroundColor = "#eee";
+          daySeparatorCell.style.fontStyle = "italic";
+          daySeparatorCell.style.textAlign = "left";
+          daySeparatorCell.textContent = act.day;
+          daySeparatorRow.appendChild(daySeparatorCell);
+          activitiesTableBody.appendChild(daySeparatorRow);
+          previousDay = act.day;
+        }
+        // Création de la ligne de l'activité
+        const newRow = document.createElement("tr");
+        newRow.style.backgroundColor = unitColors[act.unit] || "#fff";
+
+        const cellWeek = document.createElement("td");
+        cellWeek.textContent = act.week;
+        newRow.appendChild(cellWeek);
+
+        const cellDay = document.createElement("td");
+        cellDay.textContent = act.day;
+        newRow.appendChild(cellDay);
+
+        const cellUnit = document.createElement("td");
+        cellUnit.textContent = act.unit;
+        newRow.appendChild(cellUnit);
+
+        const cellPro = document.createElement("td");
+        cellPro.textContent = act.pro;
+        newRow.appendChild(cellPro);
+
+        const cellActivity = document.createElement("td");
+        cellActivity.textContent = activityLabels[act.activity] || act.activity;
+        newRow.appendChild(cellActivity);
+
+        const cellStart = document.createElement("td");
+        cellStart.textContent = act.startTime;
+        newRow.appendChild(cellStart);
+
+        const cellEnd = document.createElement("td");
+        cellEnd.textContent = act.endTime;
+        newRow.appendChild(cellEnd);
+
+        activitiesTableBody.appendChild(newRow);
+      });
+    }
+
+    // Fonctionnalité d'impression
+    document.getElementById("printBtn").addEventListener("click", function() {
+      const titleElement = document.querySelector("h2");
+      const tableElement = document.getElementById("activitiesTable");
+      if (!titleElement || !tableElement) {
+        alert("Contenu à imprimer non trouvé.");
+        return;
+      }
+      const printContents = titleElement.outerHTML + tableElement.outerHTML;
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow.document.write('<html><head><title>Impression</title>');
+      printWindow.document.write('<style>');
+      printWindow.document.write('body { font-family: Arial, sans-serif; margin: 20px; }');
+      printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 1em; }');
+      printWindow.document.write('th, td { border: 1px solid #aaa; padding: 2px; text-align: center; }');
+      printWindow.document.write('th { background-color: #e2e2e2; }');
+      printWindow.document.write('@media print { * { -webkit-print-color-adjust: exact; } }');
+      printWindow.document.write('</style>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write(printContents);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    });
+
+    // Au chargement de la page : on charge les données depuis ja.json, on affiche les activités,
+    // et on ajoute un écouteur sur le champ de recherche pour mettre à jour l'affichage.
+    window.addEventListener("load", function() {
+      loadData();
+      renderActivities();
+      document.getElementById("searchInput").addEventListener("input", renderActivities);
+    });
+  </script>
+</body>
+</html>

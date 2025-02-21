@@ -1,0 +1,64 @@
+{
+  "activities": [
+    {
+      "id": 1739455372880.3054,
+      "week": "3",
+      "day": "Mardi",
+      "unit": "Maison 2",
+      "pro": "Hélène Morvand",
+      "activity": "repas_cuisine",
+      "startTime": "02:00",
+      "endTime": "03:00"
+    },
+    {
+      "id": 1739455413111.5498,
+      "week": "4",
+      "day": "Mercredi",
+      "unit": "Maison 2",
+      "pro": "Wojcik Julie",
+      "activity": "repas_exterieur",
+      "startTime": "03:00",
+      "endTime": "05:00"
+    },
+    {
+      "id": 1739455468111.8342,
+      "week": "5",
+      "day": "Mercredi",
+      "unit": "Maison 2",
+      "pro": "Wojcik Julie",
+      "activity": "repas_cuisine",
+      "startTime": "02:00",
+      "endTime": "05:04"
+    },
+    {
+      "id": 1739455583264.4072,
+      "week": "7",
+      "day": "Jeudi",
+      "unit": "Maison 3",
+      "pro": "Pro 5",
+      "activity": "ecrits_admin",
+      "startTime": "05:00",
+      "endTime": "07:00"
+    },
+    {
+      "id": 1739455592343.1467,
+      "week": "7",
+      "day": "Jeudi",
+      "unit": "Maison 3",
+      "pro": "Pro 5",
+      "activity": "ecrits_admin",
+      "startTime": "05:00",
+      "endTime": "07:00"
+    },
+    {
+      "id": 1739455592343.127,
+      "week": "8",
+      "day": "Jeudi",
+      "unit": "Maison 3",
+      "pro": "Pro 5",
+      "activity": "journee_amenee",
+      "startTime": "07:00",
+      "endTime": "08:00"
+    }
+  ]
+}

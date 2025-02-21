@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des Animations</title>
+  <style>
+    /* Styles généraux */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f7f7f7;
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    /* Bouton Retour à l'accueil */
+    .back-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      padding: 8px 12px;
+      background: #3498db;
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 14px;
+      z-index: 1000;
+    }
+    /* Accordion styles */
+    .accordion-button {
+      background-color: #eee;
+      color: #444;
+      cursor: pointer;
+      padding: 18px;
+      width: 100%;
+      border: none;
+      text-align: left;
+      outline: none;
+      font-size: 15px;
+      transition: 0.4s;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .accordion-button:hover {
+      background-color: #ddd;
+    }
+    .accordion-button:after {
+      content: '\002B'; /* signe plus */
+      font-size: 13px;
+      color: #777;
+      float: right;
+      margin-left: 5px;
+    }
+    .accordion-button.active:after {
+      content: "\2212"; /* signe moins */
+    }
+    .accordion-content {
+      padding: 0 18px;
+      background-color: white;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease-out;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .accordion-content ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .accordion-content li {
+      padding: 8px 0;
+      border-bottom: 1px dotted #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .accordion-content li:last-child {
+      border-bottom: none;
+    }
+    /* Style pour le bouton "Voir" */
+    .view-button {
+      background-color: #5cb85c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .view-button:hover {
+      background-color: #4cae4c;
+    }
+    /* Modal styles pour la fenêtre d'activité */
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1; 
+      left: 0;
+      top: 0;
+      width: 100%; 
+      height: 100%; 
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; 
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; 
+      border-radius: 5px;
+      text-align: left;
+    }
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      text-align: right;
+    }
+    .close-button:hover,
+    .close-button:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    /* Détails de l'activité */
+    .activity-details-container {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .detail-row {
+      margin-bottom: 10px;
+      border-bottom: 1px dotted #ccc;
+      padding-bottom: 10px;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .detail-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    .detail-value {
+      margin-left: 20px;
+      color: #555;
+      white-space: pre-line;
+    }
+    .detail-list {
+      list-style-type: disc;
+      margin-left: 20px;
+      color: #555;
+    }
+    .detail-list li {
+      margin-bottom: 5px;
+    }
+    /* --- Planning Table Styles --- */
+    .planning-table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+    }
+    .planning-table-header-row th {
+      background-color: #f2f2f2;
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .planning-table-section-header-row td {
+      background-color: #e0e0e0;
+      border: 1px solid #bbb;
+      border-bottom: 2px solid #bbb;
+      padding: 8px;
+      text-align: left;
+      font-weight: bold;
+    }
+    .planning-table-detail-row td {
+      border-left: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .planning-table-detail-row:nth-child(odd) {
+      background-color: #f9f9f9;
+    }
+    .planning-table-detail-row td:first-child {
+      font-weight: normal;
+      width: 20%;
+    }
+    .planning-table-detail-row td:nth-child(2) {
+      width: 25%;
+    }
+    .planning-table-detail-row td:nth-child(3) {
+      width: 55%;
+    }
+    .planning-nested-list {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .planning-nested-list li {
+      margin-bottom: 4px;
+    }
+    /* --- Fin Planning Table Styles --- */
+
+    /* Style spécifique pour les boutons Modifier et Supprimer dans le modal d'activité */
+    #activityModal .action-buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+    #activityModal .action-buttons button {
+      padding: 8px 16px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #modifyButton {
+      background-color: #3498db;
+      color: #fff;
+    }
+    #deleteButton {
+      background-color: #e74c3c;
+      color: #fff;
+    }
+
+    /* Modal pour la saisie du mot de passe (inspiré de index.html) */
+    #passwordActionModal .modal-content {
+      width: 300px;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      border-radius: 8px;
+      text-align: center;
+      position: relative;
+    }
+    #passwordActionModal .modal-content p {
+      margin-bottom: 15px;
+    }
+    #passwordActionModal .modal-content input[type="password"] {
+      width: 80%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #passwordActionModal .modal-content button {
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: #fff;
+      transition: opacity 0.2s ease;
+    }
+    #passwordActionModal .modal-content button:hover {
+      opacity: 0.9;
+    }
+    #passwordActionModal .modal-content .close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #passwordActionModal .error {
+      color: red;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Bouton Retour à l'accueil -->
+  <a href="index.html" class="back-button">Retour à l'accueil</a>
+  <div class="container">
+    <h1>Liste des Activités</h1>
+    <div id="accordion-container">
+      <!-- Les boutons accordéon et contenus seront ajoutés ici par JavaScript -->
+    </div>
+
+    <!-- Modal pour afficher les détails de l'activité -->
+    <div id="activityModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" id="closeModal">×</span>
+        <h2>Détails de l'activité</h2>
+        <div class="activity-details-container" id="activityDetailsContainer">
+          <!-- Les détails de l'activité seront injectés ici -->
+        </div>
+        <!-- Boutons Modifier et Supprimer -->
+        <div class="action-buttons">
+          <button id="modifyButton">Modifier</button>
+          <button id="deleteButton">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal pour la saisie du mot de passe pour les actions -->
+  <div id="passwordActionModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeActionModal">&times;</span>
+      <p id="passwordActionMessage">Entrez le mot de passe pour supprimer l'activité :</p>
+      <input type="password" id="passwordActionInput" placeholder="Mot de passe">
+      <br>
+      <button id="passwordActionSubmit">Valider</button>
+      <p id="actionErrorMsg" class="error"></p>
+    </div>
+  </div>
+
+  <script>
+    // Variables globales pour suivre l'activité affichée et l'action en cours
+    let currentActivity = null;
+    let currentAction = "";
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const activityModal = document.getElementById('activityModal');
+      const closeModalButton = document.getElementById('closeModal');
+      const activityDetailsContainer = document.getElementById('activityDetailsContainer');
+
+      closeModalButton.addEventListener('click', function() {
+        activityModal.style.display = "none";
+      });
+
+      window.addEventListener('click', function(event) {
+        if (event.target == activityModal) {
+          activityModal.style.display = "none";
+        }
+      });
+
+      // Chargement des activités depuis le JSON
+      fetch('activites.json')
+        .then(response => response.json())
+        .then(activities => {
+          const accordionContainer = document.getElementById('accordion-container');
+          const activitiesByGenre = {};
+
+          // Grouper par genre
+          activities.forEach(activity => {
+            if (!activitiesByGenre[activity.genre]) {
+              activitiesByGenre[activity.genre] = [];
+            }
+            activitiesByGenre[activity.genre].push(activity);
+          });
+
+          // Trier les genres alphabétiquement
+          const genres = Object.keys(activitiesByGenre).sort();
+
+          genres.forEach(genre => {
+            // Trier les activités par nom
+            activitiesByGenre[genre].sort((a, b) => a.name.localeCompare(b.name));
+
+            // Bouton accordéon pour le genre
+            const accordionButton = document.createElement('button');
+            accordionButton.classList.add('accordion-button');
+            accordionButton.textContent = genre;
+
+            // Contenu de l'accordéon
+            const accordionContent = document.createElement('div');
+            accordionContent.classList.add('accordion-content');
+            const activityList = document.createElement('ul');
+
+            activitiesByGenre[genre].forEach(activity => {
+              const activityItem = document.createElement('li');
+
+              // Nom de l'activité
+              const activityText = document.createElement('span');
+              activityText.textContent = activity.name;
+              activityItem.appendChild(activityText);
+
+              // Bouton "Voir"
+              const viewButton = document.createElement('button');
+              viewButton.classList.add('view-button');
+              viewButton.textContent = 'Voir';
+              viewButton.addEventListener('click', function() {
+                populateActivityModal(activity);
+                activityModal.style.display = "block";
+              });
+              activityItem.appendChild(viewButton);
+
+              activityList.appendChild(activityItem);
+            });
+            accordionContent.appendChild(activityList);
+
+            accordionContainer.appendChild(accordionButton);
+            accordionContainer.appendChild(accordionContent);
+
+            // Fonctionnalité d'accordéon
+            accordionButton.addEventListener('click', function() {
+              this.classList.toggle('active');
+              const content = this.nextElementSibling;
+              if (content.style.maxHeight){
+                content.style.maxHeight = null;
+              } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+              }
+            });
+          });
+        })
+        .catch(error => console.error('Erreur lors du chargement des activités:', error));
+
+      // Fonction de remplissage du modal d'activité
+      function populateActivityModal(activity) {
+        currentActivity = activity; // stocker l'activité courante
+        activityDetailsContainer.innerHTML = ''; // effacer le contenu précédent
+
+        // Fonction pour créer une ligne de détail
+        const createDetailRow = (titleText, valueText) => {
+          const detailRow = document.createElement('div');
+          detailRow.classList.add('detail-row');
+
+          const title = document.createElement('div');
+          title.classList.add('detail-title');
+          title.textContent = titleText;
+          detailRow.appendChild(title);
+
+          const value = document.createElement('div');
+          value.classList.add('detail-value');
+          value.textContent = valueText || '-';
+          detailRow.appendChild(value);
+
+          return detailRow;
+        };
+
+        activityDetailsContainer.appendChild(createDetailRow('Nom', activity.name));
+        activityDetailsContainer.appendChild(createDetailRow('Genre', activity.genre));
+        activityDetailsContainer.appendChild(createDetailRow('Description', activity.description));
+        activityDetailsContainer.appendChild(createDetailRow('Intervenant extérieur', activity.externalIntervention));
+        activityDetailsContainer.appendChild(createDetailRow('Lieu', activity.location));
+        activityDetailsContainer.appendChild(createDetailRow('Véhicules', (activity.vehicles && activity.vehicles.join(', ')) || '-'));
+        activityDetailsContainer.appendChild(createDetailRow('Répétition', activity.repetitionType || '-'));
+
+        // Affichage des Types sous forme de liste
+        if (activity.types && activity.types.length > 0) {
+          const typesRow = document.createElement('div');
+          typesRow.classList.add('detail-row');
+          const typesTitle = document.createElement('div');
+          typesTitle.classList.add('detail-title');
+          typesTitle.textContent = 'Types';
+          typesRow.appendChild(typesTitle);
+          const typesList = document.createElement('ul');
+          typesList.classList.add('detail-list');
+          activity.types.forEach(type => {
+            const typeItem = document.createElement('li');
+            typeItem.textContent = type;
+            typesList.appendChild(typeItem);
+          });
+          typesRow.appendChild(typesList);
+          activityDetailsContainer.appendChild(typesRow);
+        } else {
+          activityDetailsContainer.appendChild(createDetailRow('Types', '-'));
+        }
+
+        // Dates spécifiques
+        if (activity.specificDates && activity.specificDates.length > 0) {
+          const datesRow = document.createElement('div');
+          datesRow.classList.add('detail-row');
+          const datesTitle = document.createElement('div');
+          datesTitle.classList.add('detail-title');
+          datesTitle.textContent = 'Dates spécifiques';
+          datesRow.appendChild(datesTitle);
+          const datesList = document.createElement('ul');
+          datesList.classList.add('detail-list');
+          activity.specificDates.forEach(date => {
+            const dateItem = document.createElement('li');
+            dateItem.textContent = formatDate(date);
+            datesList.appendChild(dateItem);
+          });
+          datesRow.appendChild(datesList);
+          activityDetailsContainer.appendChild(datesRow);
+        } else {
+          activityDetailsContainer.appendChild(createDetailRow('Dates spécifiques', '-'));
+        }
+
+        // Section Planning (si présente)
+        if (activity.planning && activity.planning.length > 0) {
+          const planningSection = document.createElement('div');
+          planningSection.classList.add('detail-row');
+          const planningTitle = document.createElement('div');
+          planningTitle.classList.add('detail-title');
+          planningTitle.textContent = 'Planning';
+          planningSection.appendChild(planningTitle);
+
+          const planningTable = document.createElement('table');
+          planningTable.classList.add('planning-table');
+
+          // En-tête du tableau
+          const headerRow = planningTable.insertRow();
+          headerRow.classList.add('planning-table-header-row');
+          headerRow.insertCell().textContent = 'Type / Date';
+          headerRow.insertCell().textContent = 'Jour (si indiqué)';
+          headerRow.insertCell().textContent = 'Heure';
+
+          // Groupement par section
+          const groupedPlanning = {};
+          activity.planning.forEach(plan => {
+            if (!groupedPlanning[plan.section]) {
+              groupedPlanning[plan.section] = [];
+            }
+            groupedPlanning[plan.section].push(plan);
+          });
+
+          let detailRowCounter = 0;
+          for (const section in groupedPlanning) {
+            const plansInSection = groupedPlanning[section];
+            let isFirstPlanInSection = true;
+            plansInSection.forEach(plan => {
+              if (isFirstPlanInSection) {
+                const sectionHeaderRow = planningTable.insertRow();
+                sectionHeaderRow.classList.add('planning-table-section-header-row');
+                const sectionHeaderCell = sectionHeaderRow.insertCell();
+                sectionHeaderCell.colSpan = 3;
+                sectionHeaderCell.textContent = section;
+                isFirstPlanInSection = false;
+              }
+              const detailRow = planningTable.insertRow();
+              detailRow.classList.add('planning-table-detail-row');
+              if (detailRowCounter % 2 === 0) {
+                detailRow.classList.add('even-row');
+              }
+              detailRow.insertCell().textContent = '';
+              detailRow.insertCell().textContent = plan.day || '-';
+              detailRow.insertCell().textContent = `${plan.startTime}-${plan.endTime}`;
+
+              // Ligne pour Professionnels
+              const professionalsRow = planningTable.insertRow();
+              professionalsRow.classList.add('planning-table-detail-row');
+              if (detailRowCounter % 2 === 0) {
+                professionalsRow.classList.add('even-row');
+              }
+              const professionalsCellTitle = professionalsRow.insertCell();
+              professionalsCellTitle.textContent = 'Professionnels :';
+              professionalsCellTitle.style.fontWeight = 'normal';
+              const professionalsCellList = professionalsRow.insertCell();
+              professionalsCellList.colSpan = 2;
+              const professionalsList = document.createElement('ul');
+              professionalsList.classList.add('planning-nested-list');
+              plan.professionals.forEach(pro => {
+                const proItem = document.createElement('li');
+                proItem.textContent = pro;
+                professionalsList.appendChild(proItem);
+              });
+              professionalsCellList.appendChild(professionalsList);
+              professionalsRow.insertCell();
+
+              // Ligne pour Résidents
+              const residentsRow = planningTable.insertRow();
+              residentsRow.classList.add('planning-table-detail-row');
+              if (detailRowCounter % 2 === 0) {
+                residentsRow.classList.add('even-row');
+              }
+              const residentsCellTitle = residentsRow.insertCell();
+              residentsCellTitle.textContent = 'Résidents :';
+              residentsCellTitle.style.fontWeight = 'normal';
+              const residentsCellList = residentsRow.insertCell();
+              residentsCellList.colSpan = 2;
+              const residentsList = document.createElement('ul');
+              residentsList.classList.add('planning-nested-list');
+              let residentsArray = Array.isArray(plan.residents) ? plan.residents : (plan.residents === 'Ouvert à tous' ? ['Ouvert à tous'] : []);
+              residentsArray.forEach(resident => {
+                const residentItem = document.createElement('li');
+                residentItem.textContent = (typeof resident === 'object' && resident.name) ? resident.name : resident;
+                residentsList.appendChild(residentItem);
+              });
+              residentsCellList.appendChild(residentsList);
+              residentsRow.insertCell();
+
+              // Ligne pour Repas
+              const mealsRow = planningTable.insertRow();
+              mealsRow.classList.add('planning-table-detail-row');
+              if (detailRowCounter % 2 === 0) {
+                mealsRow.classList.add('even-row');
+              }
+              const mealsCellTitle = mealsRow.insertCell();
+              mealsCellTitle.textContent = 'Repas :';
+              mealsCellTitle.style.fontWeight = 'normal';
+              const mealsCellDetails = mealsRow.insertCell();
+              mealsCellDetails.colSpan = 2;
+              mealsCellDetails.textContent = (plan.repasCuisine ? 'Repas Cuisine, ' : '') + (plan.repasExterieur ? 'Repas Extérieur, ' : '') + (plan.mealCountDetails || 'Non');
+              mealsRow.insertCell();
+
+              detailRowCounter++;
+
+              // Optionnel : séparation visuelle
+              const separatorRow = planningTable.insertRow();
+              const separatorCell = separatorRow.insertCell();
+              separatorCell.colSpan = 3;
+              separatorCell.style.padding = '0';
+              separatorCell.style.borderBottom = '1px dotted #ddd';
+              separatorRow.insertCell();
+              separatorRow.insertCell();
+            });
+          }
+          planningSection.appendChild(planningTable);
+          activityDetailsContainer.appendChild(planningSection);
+        } else {
+          activityDetailsContainer.appendChild(createDetailRow('Planning', 'Non planifié'));
+        }
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+
+      // Gestion des clics sur les boutons Modifier et Supprimer
+      document.getElementById('modifyButton').addEventListener('click', function() {
+        currentAction = 'modify';
+        openPasswordActionModal();
+      });
+      document.getElementById('deleteButton').addEventListener('click', function() {
+        currentAction = 'delete';
+        openPasswordActionModal();
+      });
+    });
+
+    // Fonctions relatives au modal de saisie du mot de passe pour les actions
+    function openPasswordActionModal() {
+      const modal = document.getElementById('passwordActionModal');
+      const message = document.getElementById('passwordActionMessage');
+      if (currentAction === 'delete') {
+        message.textContent = "Entrez le mot de passe pour supprimer l'activité :";
+      } else if (currentAction === 'modify') {
+        message.textContent = "Entrez le mot de passe pour modifier l'activité :";
+      }
+      modal.style.display = "block";
+      document.getElementById('passwordActionInput').value = "";
+      document.getElementById('actionErrorMsg').textContent = "";
+      document.getElementById('passwordActionInput').focus();
+    }
+
+    document.getElementById('closeActionModal').addEventListener('click', function() {
+      document.getElementById('passwordActionModal').style.display = "none";
+    });
+    document.getElementById('passwordActionSubmit').addEventListener('click', submitActionPassword);
+
+    window.addEventListener('click', function(event) {
+      const modal = document.getElementById('passwordActionModal');
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+
+    function submitActionPassword() {
+      const saisie = document.getElementById('passwordActionInput').value;
+      if (saisie === "admin") {
+        if (currentAction === 'delete') {
+          deleteActivity(currentActivity);
+        } else if (currentAction === 'modify') {
+          alert("Fonctionnalité de modification à venir");
+        }
+        document.getElementById('passwordActionModal').style.display = "none";
+      } else {
+        document.getElementById('actionErrorMsg').textContent = "Mot de passe incorrect !";
+      }
+    }
+
+    // Fonction de suppression de l'activité (mise à jour du JSON)
+    function deleteActivity(activity) {
+      const fs = require('fs');
+      const path = require('path');
+      const filePath = path.join(__dirname, 'activites.json');
+      fs.readFile(filePath, 'utf8', function(err, data) {
+        if (err) {
+          console.error("Erreur lors de la lecture du fichier :", err);
+          return;
+        }
+        let activities = JSON.parse(data);
+        // Ici, nous utilisons le nom comme identifiant (à adapter si vous avez un id)
+        activities = activities.filter(act => act.name !== activity.name);
+        fs.writeFile(filePath, JSON.stringify(activities, null, 2), 'utf8', function(err) {
+          if (err) {
+            console.error("Erreur lors de l'écriture du fichier :", err);
+          } else {
+            console.log("Activité supprimée avec succès.");
+            document.getElementById('activityModal').style.display = "none";
+            // Rafraîchit la page pour mettre à jour la liste
+            window.location.reload();
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Menu Principal</title>
+  <style>
+    /* Styles généraux */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 90%;
+    }
+    .container h1 {
+      margin-bottom: 20px;
+    }
+    /* Rangées à deux boutons avec ligne de séparation */
+    .row.two-buttons {
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 15px;
+    }
+    .half {
+      flex: 1;
+    }
+    .divider {
+      width: 1px;
+      background-color: #ccc;
+      margin: 0 10px;
+    }
+    /* Rangée pour le bouton en pleine largeur */
+    .row.full-row {
+      margin-bottom: 15px;
+    }
+    .full-width {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #e67e22;
+      color: #fff;
+      transition: opacity 0.2s ease;
+    }
+    .full-width:hover {
+      opacity: 0.9;
+    }
+    /* Boutons non protégés */
+    .btn-default {
+      background-color: #3498db;
+      color: #fff;
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .btn-default:hover {
+      opacity: 0.9;
+    }
+    /* Boutons protégés */
+    .btn-protected {
+      background-color: #e67e22;
+      color: #fff;
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .btn-protected:hover {
+      opacity: 0.9;
+    }
+    
+    /* Styles de la fenêtre modale */
+    .modal {
+      display: none; /* cachée par défaut */
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 300px;
+      border-radius: 8px;
+      text-align: center;
+      position: relative;
+    }
+    .modal-content p {
+      margin-bottom: 15px;
+    }
+    .modal-content input[type="password"] {
+      width: 80%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .modal-content button {
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: #fff;
+      transition: opacity 0.2s ease;
+    }
+    .modal-content button:hover {
+      opacity: 0.9;
+    }
+    .close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Menu Principal</h1>
+    
+    <!-- Première rangée : Voir JA et Voir Animations -->
+    <div class="row two-buttons">
+      <div class="half">
+        <button class="btn-default" onclick="window.location.href='ja.html'">Voir JA</button>
+      </div>
+      <div class="divider"></div>
+      <div class="half">
+        <button class="btn-default" onclick="window.location.href='animations.html'">Voir Activités</button>
+      </div>
+    </div>
+    
+    <!-- Deuxième rangée : Éditer JA et Éditer Animations (protégés) -->
+    <div class="row two-buttons">
+      <div class="half">
+        <button class="btn-protected" onclick="openPasswordModal('edition_ja.html')">Éditer JA</button>
+      </div>
+      <div class="divider"></div>
+      <div class="half">
+        <button class="btn-protected" onclick="openPasswordModal('edition_animations.html')">Éditer Activités</button>
+      </div>
+    </div>
+    
+    <!-- Troisième rangée : Bouton plein largeur pour Liste Professionnels/Résidents -->
+    <div class="row full-row">
+      <button class="full-width" onclick="openPasswordModal('liste.html')">Liste Professionnels/Résidents</button>
+    </div>
+  </div>
+
+  <!-- Fenêtre modale pour la saisie du mot de passe -->
+  <div id="passwordModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <p>Veuillez entrer le mot de passe :</p>
+      <input type="password" id="passwordInput" placeholder="Mot de passe">
+      <br>
+      <button onclick="submitPassword()">Valider</button>
+      <p id="errorMsg" class="error"></p>
+    </div>
+  </div>
+
+  <script>
+    // Variable globale pour stocker la page ciblée par le bouton protégé
+    let targetPage = "";
+    // Mot de passe attendu (modifiez-le si besoin)
+    const passwordAttendu = "admin";
+
+    /**
+     * Affiche la fenêtre modale en sauvegardant la page cible.
+     * @param {string} page - L'URL de la page protégée.
+     */
+    function openPasswordModal(page) {
+      targetPage = page;
+      document.getElementById("passwordInput").value = "";
+      document.getElementById("errorMsg").textContent = "";
+      document.getElementById("passwordModal").style.display = "block";
+      document.getElementById("passwordInput").focus();
+    }
+
+    /**
+     * Ferme la fenêtre modale.
+     */
+    function closeModal() {
+      document.getElementById("passwordModal").style.display = "none";
+    }
+
+    /**
+     * Vérifie le mot de passe saisi et redirige si correct.
+     */
+    function submitPassword() {
+      const saisie = document.getElementById("passwordInput").value;
+      if (saisie === passwordAttendu) {
+        // Redirection vers la page protégée
+        window.location.href = targetPage;
+      } else {
+        document.getElementById("errorMsg").textContent = "Mot de passe incorrect !";
+      }
+    }
+
+    // Optionnel : fermer la modale si l'utilisateur clique en dehors de la fenêtre modale
+    window.onclick = function(event) {
+      const modal = document.getElementById("passwordModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>

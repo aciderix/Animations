@@ -1,0 +1,484 @@
+{
+  "professionalsByUnit": {
+    "Maison 1": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Maison 2": [
+      "Wojcik Julie",
+      "Hélène Morvand",
+      "Marie Larignon",
+      "Simon Beneteau",
+      "Sophie Ordronneau",
+      "Pro 6 test",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Maison 3": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Maison 4": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Maison 5": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Maison 6": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Maison 7": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Accueil de jour": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ]
+  },
+  "residentsByUnit": {
+    "Maison 1": [
+      {
+        "id": "m1-r1",
+        "name": "Résident 1",
+        "texture": "standart"
+      },
+      {
+        "id": "m1-r2",
+        "name": "Résident 2",
+        "texture": "standart"
+      },
+      {
+        "id": "m1-r3",
+        "name": "Résident 3",
+        "texture": "standart"
+      },
+      {
+        "id": "m1-r4",
+        "name": "Résident 4",
+        "texture": "standart"
+      },
+      {
+        "id": "m1-r5",
+        "name": "Résident 5",
+        "texture": "standart"
+      },
+      {
+        "id": "m1-r6",
+        "name": "Résident 6",
+        "texture": "standart"
+      },
+      {
+        "id": "m1-r7",
+        "name": "Résident 7",
+        "texture": "standart"
+      },
+      {
+        "id": "m1-r8",
+        "name": "Résident 8",
+        "texture": "standart"
+      }
+    ],
+    "Maison 2": [
+      {
+        "id": "m2-r1",
+        "name": "Résident 1",
+        "texture": "standart"
+      },
+      {
+        "id": "m2-r2",
+        "name": "Résident 2",
+        "texture": "standart"
+      },
+      {
+        "id": "m2-r3",
+        "name": "Résident 3",
+        "texture": "standart"
+      },
+      {
+        "id": "m2-r4",
+        "name": "Résident 4",
+        "texture": "standart"
+      },
+      {
+        "id": "m2-r5",
+        "name": "Résident 5",
+        "texture": "standart"
+      },
+      {
+        "id": "m2-r6",
+        "name": "Résident 6",
+        "texture": "standart"
+      },
+      {
+        "id": "m2-r7",
+        "name": "Résident 7",
+        "texture": "standart"
+      },
+      {
+        "id": "m2-r8",
+        "name": "Résident 8",
+        "texture": "standart"
+      }
+    ],
+    "Maison 3": [
+      {
+        "id": "m3-r1",
+        "name": "Résident 1",
+        "texture": "standart"
+      },
+      {
+        "id": "m3-r2",
+        "name": "Résident 2",
+        "texture": "standart"
+      },
+      {
+        "id": "m3-r3",
+        "name": "Résident 3",
+        "texture": "standart"
+      },
+      {
+        "id": "m3-r4",
+        "name": "Résident 4",
+        "texture": "standart"
+      },
+      {
+        "id": "m3-r5",
+        "name": "Résident 5",
+        "texture": "standart"
+      },
+      {
+        "id": "m3-r6",
+        "name": "Résident 6",
+        "texture": "standart"
+      },
+      {
+        "id": "m3-r7",
+        "name": "Résident 7",
+        "texture": "standart"
+      },
+      {
+        "id": "m3-r8",
+        "name": "Résident 8",
+        "texture": "standart"
+      }
+    ],
+    "Maison 4": [
+      {
+        "id": "m4-r1",
+        "name": "Résident 1",
+        "texture": "standart"
+      },
+      {
+        "id": "m4-r2",
+        "name": "Résident 2",
+        "texture": "standart"
+      },
+      {
+        "id": "m4-r3",
+        "name": "Résident 3",
+        "texture": "standart"
+      },
+      {
+        "id": "m4-r4",
+        "name": "Résident 4",
+        "texture": "standart"
+      },
+      {
+        "id": "m4-r5",
+        "name": "Résident 5",
+        "texture": "standart"
+      },
+      {
+        "id": "m4-r6",
+        "name": "Résident 6",
+        "texture": "standart"
+      },
+      {
+        "id": "m4-r7",
+        "name": "Résident 7",
+        "texture": "standart"
+      },
+      {
+        "id": "m4-r8",
+        "name": "Résident 8",
+        "texture": "standart"
+      }
+    ],
+    "Maison 5": [
+      {
+        "id": "m5-r1",
+        "name": "Résident 1",
+        "texture": "standart"
+      },
+      {
+        "id": "m5-r2",
+        "name": "Résident 2",
+        "texture": "standart"
+      },
+      {
+        "id": "m5-r3",
+        "name": "Résident 3",
+        "texture": "standart"
+      },
+      {
+        "id": "m5-r4",
+        "name": "Résident 4",
+        "texture": "standart"
+      },
+      {
+        "id": "m5-r5",
+        "name": "Résident 5",
+        "texture": "standart"
+      },
+      {
+        "id": "m5-r6",
+        "name": "Résident 6",
+        "texture": "standart"
+      },
+      {
+        "id": "m5-r7",
+        "name": "Résident 7",
+        "texture": "standart"
+      },
+      {
+        "id": "m5-r8",
+        "name": "Résident 8",
+        "texture": "standart"
+      }
+    ],
+    "Maison 6": [
+      {
+        "id": "m6-r1",
+        "name": "Résident 1",
+        "texture": "standart"
+      },
+      {
+        "id": "m6-r2",
+        "name": "Résident 2",
+        "texture": "standart"
+      },
+      {
+        "id": "m6-r3",
+        "name": "Résident 3",
+        "texture": "standart"
+      },
+      {
+        "id": "m6-r4",
+        "name": "Résident 4",
+        "texture": "standart"
+      },
+      {
+        "id": "m6-r5",
+        "name": "Résident 5",
+        "texture": "standart"
+      },
+      {
+        "id": "m6-r6",
+        "name": "Résident 6",
+        "texture": "standart"
+      },
+      {
+        "id": "m6-r7",
+        "name": "Résident 7",
+        "texture": "standart"
+      },
+      {
+        "id": "m6-r8",
+        "name": "Résident 8",
+        "texture": "standart"
+      }
+    ],
+    "Maison 7": [
+      {
+        "id": "m7-r1",
+        "name": "Résident 1",
+        "texture": "standart"
+      },
+      {
+        "id": "m7-r2",
+        "name": "Résident 2",
+        "texture": "standart"
+      },
+      {
+        "id": "m7-r3",
+        "name": "Résident 3",
+        "texture": "standart"
+      },
+      {
+        "id": "m7-r4",
+        "name": "Résident 4",
+        "texture": "standart"
+      },
+      {
+        "id": "m7-r5",
+        "name": "Résident 5",
+        "texture": "standart"
+      },
+      {
+        "id": "m7-r6",
+        "name": "Résident 6",
+        "texture": "standart"
+      },
+      {
+        "id": "m7-r7",
+        "name": "Résident 7",
+        "texture": "standart"
+      },
+      {
+        "id": "m7-r8",
+        "name": "Résident 8",
+        "texture": "standart"
+      }
+    ],
+    "Accueil de jour": [
+      {
+        "id": "ad-r1",
+        "name": "Résident 1",
+        "texture": "standart"
+      },
+      {
+        "id": "ad-r2",
+        "name": "Résident 2",
+        "texture": "standart"
+      },
+      {
+        "id": "ad-r3",
+        "name": "Résident 3",
+        "texture": "standart"
+      },
+      {
+        "id": "ad-r4",
+        "name": "Résident 4",
+        "texture": "standart"
+      },
+      {
+        "id": "ad-r5",
+        "name": "Résident 5",
+        "texture": "standart"
+      },
+      {
+        "id": "ad-r6",
+        "name": "Résident 6",
+        "texture": "standart"
+      },
+      {
+        "id": "ad-r7",
+        "name": "Résident 7",
+        "texture": "standart"
+      },
+      {
+        "id": "ad-r8",
+        "name": "Résident 8",
+        "texture": "standart"
+      },
+      {
+        "id": "ad-r9",
+        "name": "Résident 9",
+        "texture": "standart"
+      },
+      {
+        "id": "ad-r10",
+        "name": "Résident 10",
+        "texture": "standart"
+      }
+    ]
+  },
+  "professionalsByCategory": {
+    "Paramedical": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Services techniques": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Lingerie": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Animation": [
+      "Pro 1",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ],
+    "Remplaçants": [
+      "Pro A",
+      "Pro 2",
+      "Pro 3",
+      "Pro 4",
+      "Pro 5",
+      "Pro 6",
+      "Pro 7",
+      "Pro 8"
+    ]
+  }
+}

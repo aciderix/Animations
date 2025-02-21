@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Configuration des Professionnels et Résidents</title>
+  <style>
+    /* Bouton Retour à l'accueil */
+    .back-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      padding: 8px 12px;
+      background: #3498db;
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 14px;
+      z-index: 1000;
+    }
+    /* Style des boutons de sélection de vue */
+    #viewSwitcher {
+      text-align: center;
+      margin: 20px 0;
+    }
+    #viewSwitcher button {
+      padding: 8px 16px;
+      margin: 0 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background: #3498db;
+      color: #fff;
+    }
+    /* Styles généraux */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f7f7f7;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    /* Style des menus déroulants */
+    select {
+      display: block;
+      margin: 0 auto 20px auto;
+      font-size: 16px;
+      padding: 5px;
+    }
+    /* Section de configuration */
+    .pro-settings {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      background: #f0f0f0;
+    }
+    .unit-settings {
+      margin-bottom: 20px;
+    }
+    /* Alignement pour l'affichage des résidents */
+    .resident-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .resident-row label {
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+    /* La classe spéciale pour rapprocher le dropdown du texte "Texture des repas :" */
+    .texture-label {
+      margin-right: 2px;
+    }
+    .resident-row input,
+    .resident-row select {
+      margin-right: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Bouton Retour à l'accueil -->
+  <a href="index.html" class="back-button">Retour à l'accueil</a>
+
+  <!-- Vue switcher : Professionnels / Résidents -->
+  <div id="viewSwitcher">
+    <button id="btnProfessionnels">Professionnels</button> ｜
+    <button id="btnResidents">Résidents</button>
+  </div>
+
+  <!-- Bloc de configuration pour "Professionnels par Maison / Accueil de jour" -->
+  <div class="container" id="containerProfessionnelsHouse">
+    <h1>Configuration des Professionnels par Maison / Accueil de jour</h1>
+    <!-- Menu déroulant pour sélectionner la maison -->
+    <select id="houseSelect"></select>
+    <div class="pro-settings">
+      <!-- La configuration pour la maison sélectionnée sera générée ici -->
+      <div id="professionalSettings"></div>
+    </div>
+  </div>
+
+  <!-- Bloc de configuration pour "Résidents par Maison / Accueil de jour" -->
+  <div class="container" id="containerResidents">
+    <h1>Configuration des Résidents par Maison / Accueil de jour</h1>
+    <!-- Menu déroulant pour sélectionner la maison -->
+    <select id="residentHouseSelect"></select>
+    <div class="pro-settings">
+      <!-- La configuration pour la maison sélectionnée sera générée ici -->
+      <div id="residentSettings"></div>
+    </div>
+  </div>
+
+  <!-- Bloc de configuration pour les Professionnels par Catégorie -->
+  <div class="container" id="containerProfessionnelsCategory">
+    <h2>Configuration des Professionnels par Catégorie</h2>
+    <!-- Menu déroulant pour sélectionner la catégorie -->
+    <select id="categorySelect"></select>
+    <div class="pro-settings" id="categorySettings">
+      <!-- La configuration pour la catégorie sélectionnée sera générée ici -->
+    </div>
+  </div>
+
+  <script>
+    // Importation des modules Node.js (assurez-vous que Node est activé dans Electron)
+    const fs = require('fs');
+    const path = require('path');
+    // Chemin vers le fichier data.json situé dans le même dossier
+    const dataFilePath = path.join(__dirname, 'data.json');
+
+    // Configuration par défaut pour les professionnels par Maison / Accueil de jour
+    let professionalsByUnit = {
+      "Maison 1": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 2": ["Wojcik Julie", "Hélène Morvand", "Marie Larignon", "Simon Beneteau", "Sophie Ordronneau", "Pro 6 test", "Pro 7", "Pro 8"],
+      "Maison 3": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 4": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 5": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 6": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Maison 7": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Accueil de jour": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"]
+    };
+
+    // Nouvelle structure pour les résidents par Maison / Accueil de jour avec identifiants uniques
+    let residentsByUnit = {
+      "Maison 1": [
+        { id: "m1-r1", name: "Résident 1", texture: "standart" },
+        { id: "m1-r2", name: "Résident 2", texture: "standart" },
+        { id: "m1-r3", name: "Résident 3", texture: "standart" },
+        { id: "m1-r4", name: "Résident 4", texture: "standart" },
+        { id: "m1-r5", name: "Résident 5", texture: "standart" },
+        { id: "m1-r6", name: "Résident 6", texture: "standart" },
+        { id: "m1-r7", name: "Résident 7", texture: "standart" },
+        { id: "m1-r8", name: "Résident 8", texture: "standart" }
+      ],
+      "Maison 2": [
+        { id: "m2-r1", name: "Résident 1", texture: "standart" },
+        { id: "m2-r2", name: "Résident 2", texture: "standart" },
+        { id: "m2-r3", name: "Résident 3", texture: "standart" },
+        { id: "m2-r4", name: "Résident 4", texture: "standart" },
+        { id: "m2-r5", name: "Résident 5", texture: "standart" },
+        { id: "m2-r6", name: "Résident 6", texture: "standart" },
+        { id: "m2-r7", name: "Résident 7", texture: "standart" },
+        { id: "m2-r8", name: "Résident 8", texture: "standart" }
+      ],
+      "Maison 3": [
+        { id: "m3-r1", name: "Résident 1", texture: "standart" },
+        { id: "m3-r2", name: "Résident 2", texture: "standart" },
+        { id: "m3-r3", name: "Résident 3", texture: "standart" },
+        { id: "m3-r4", name: "Résident 4", texture: "standart" },
+        { id: "m3-r5", name: "Résident 5", texture: "standart" },
+        { id: "m3-r6", name: "Résident 6", texture: "standart" },
+        { id: "m3-r7", name: "Résident 7", texture: "standart" },
+        { id: "m3-r8", name: "Résident 8", texture: "standart" }
+      ],
+      "Maison 4": [
+        { id: "m4-r1", name: "Résident 1", texture: "standart" },
+        { id: "m4-r2", name: "Résident 2", texture: "standart" },
+        { id: "m4-r3", name: "Résident 3", texture: "standart" },
+        { id: "m4-r4", name: "Résident 4", texture: "standart" },
+        { id: "m4-r5", name: "Résident 5", texture: "standart" },
+        { id: "m4-r6", name: "Résident 6", texture: "standart" },
+        { id: "m4-r7", name: "Résident 7", texture: "standart" },
+        { id: "m4-r8", name: "Résident 8", texture: "standart" }
+      ],
+      "Maison 5": [
+        { id: "m5-r1", name: "Résident 1", texture: "standart" },
+        { id: "m5-r2", name: "Résident 2", texture: "standart" },
+        { id: "m5-r3", name: "Résident 3", texture: "standart" },
+        { id: "m5-r4", name: "Résident 4", texture: "standart" },
+        { id: "m5-r5", name: "Résident 5", texture: "standart" },
+        { id: "m5-r6", name: "Résident 6", texture: "standart" },
+        { id: "m5-r7", name: "Résident 7", texture: "standart" },
+        { id: "m5-r8", name: "Résident 8", texture: "standart" }
+      ],
+      "Maison 6": [
+        { id: "m6-r1", name: "Résident 1", texture: "standart" },
+        { id: "m6-r2", name: "Résident 2", texture: "standart" },
+        { id: "m6-r3", name: "Résident 3", texture: "standart" },
+        { id: "m6-r4", name: "Résident 4", texture: "standart" },
+        { id: "m6-r5", name: "Résident 5", texture: "standart" },
+        { id: "m6-r6", name: "Résident 6", texture: "standart" },
+        { id: "m6-r7", name: "Résident 7", texture: "standart" },
+        { id: "m6-r8", name: "Résident 8", texture: "standart" }
+      ],
+      "Maison 7": [
+        { id: "m7-r1", name: "Résident 1", texture: "standart" },
+        { id: "m7-r2", name: "Résident 2", texture: "standart" },
+        { id: "m7-r3", name: "Résident 3", texture: "standart" },
+        { id: "m7-r4", name: "Résident 4", texture: "standart" },
+        { id: "m7-r5", name: "Résident 5", texture: "standart" },
+        { id: "m7-r6", name: "Résident 6", texture: "standart" },
+        { id: "m7-r7", name: "Résident 7", texture: "standart" },
+        { id: "m7-r8", name: "Résident 8", texture: "standart" }
+      ],
+      "Accueil de jour": [
+        { id: "ad-r1", name: "Résident 1", texture: "standart" },
+        { id: "ad-r2", name: "Résident 2", texture: "standart" },
+        { id: "ad-r3", name: "Résident 3", texture: "standart" },
+        { id: "ad-r4", name: "Résident 4", texture: "standart" },
+        { id: "ad-r5", name: "Résident 5", texture: "standart" },
+        { id: "ad-r6", name: "Résident 6", texture: "standart" },
+        { id: "ad-r7", name: "Résident 7", texture: "standart" },
+        { id: "ad-r8", name: "Résident 8", texture: "standart" },
+        { id: "ad-r9", name: "Résident 9", texture: "standart" },
+        { id: "ad-r10", name: "Résident 10", texture: "standart" }
+      ]
+    };
+
+    // Configuration par défaut pour les professionnels par Catégorie
+    let professionalsByCategory = {
+      "Paramedical": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Services techniques": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Lingerie": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Animation": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"],
+      "Remplaçants": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5", "Pro 6", "Pro 7", "Pro 8"] // Ajout de la catégorie Remplaçants
+    };
+
+    // Fonction de chargement depuis data.json
+    function loadData() {
+      if (fs.existsSync(dataFilePath)) {
+        try {
+          const rawData = fs.readFileSync(dataFilePath, 'utf8');
+          const data = JSON.parse(rawData);
+          if (data.professionalsByUnit) {
+            professionalsByUnit = data.professionalsByUnit;
+          }
+          if (data.residentsByUnit) {
+            residentsByUnit = data.residentsByUnit;
+          }
+          if (data.professionalsByCategory) {
+            professionalsByCategory = data.professionalsByCategory;
+          }
+          console.log('Données chargées depuis', dataFilePath);
+        } catch (err) {
+          console.error('Erreur lors du chargement des données :', err);
+        }
+      } else {
+        console.warn('Fichier data.json introuvable. Utilisation des valeurs par défaut.');
+      }
+    }
+
+    // Fonction de sauvegarde dans data.json
+    function saveData() {
+      const data = { professionalsByUnit, residentsByUnit, professionalsByCategory };
+      try {
+        fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf8');
+        console.log('Données sauvegardées dans', dataFilePath);
+      } catch (err) {
+        console.error('Erreur lors de la sauvegarde des données :', err);
+      }
+    }
+
+    // --- Configuration des Professionnels par Maison / Accueil de jour ---
+    // Peupler le menu déroulant des maisons (professionnels)
+    function populateHouseDropdown() {
+      const houseSelect = document.getElementById("houseSelect");
+      houseSelect.innerHTML = "";
+      Object.keys(professionalsByUnit).forEach(house => {
+        const option = document.createElement("option");
+        option.value = house;
+        option.textContent = house;
+        houseSelect.appendChild(option);
+      });
+    }
+
+    // Construction dynamique de l'affichage pour une maison sélectionnée (professionnels)
+    function buildProfessionalSettings(selectedHouse) {
+      const settingsContainer = document.getElementById("professionalSettings");
+      settingsContainer.innerHTML = "";
+
+      const house = selectedHouse || Object.keys(professionalsByUnit)[0];
+
+      const unitDiv = document.createElement("div");
+      unitDiv.classList.add("unit-settings");
+
+      const unitTitle = document.createElement("h3");
+      unitTitle.textContent = house;
+      unitDiv.appendChild(unitTitle);
+
+      professionalsByUnit[house].forEach((proName, index) => {
+        const label = document.createElement("label");
+        label.textContent = `Pro ${index + 1}: `;
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = proName;
+        input.dataset.unit = house;
+        input.dataset.index = index;
+        input.addEventListener("change", function() {
+          const unit = this.dataset.unit;
+          const idx = this.dataset.index;
+          professionalsByUnit[unit][idx] = this.value;
+          saveData();
+        });
+        unitDiv.appendChild(label);
+        unitDiv.appendChild(input);
+        unitDiv.appendChild(document.createElement("br"));
+      });
+      settingsContainer.appendChild(unitDiv);
+    }
+
+    // --- Configuration des Résidents par Maison / Accueil de jour ---
+    // Peupler le menu déroulant des maisons (résidents)
+    function populateResidentHouseDropdown() {
+      const residentHouseSelect = document.getElementById("residentHouseSelect");
+      residentHouseSelect.innerHTML = "";
+      Object.keys(residentsByUnit).forEach(house => {
+        const option = document.createElement("option");
+        option.value = house;
+        option.textContent = house;
+        residentHouseSelect.appendChild(option);
+      });
+    }
+
+    // Construction dynamique de l'affichage pour une maison sélectionnée (résidents)
+    function buildResidentSettings(selectedHouse) {
+      const settingsContainer = document.getElementById("residentSettings");
+      settingsContainer.innerHTML = "";
+
+      const house = selectedHouse || Object.keys(residentsByUnit)[0];
+
+      const unitDiv = document.createElement("div");
+      unitDiv.classList.add("unit-settings");
+
+      const unitTitle = document.createElement("h3");
+      unitTitle.textContent = house;
+      unitDiv.appendChild(unitTitle);
+
+      residentsByUnit[house].forEach((resident, index) => {
+        // Création d'une ligne pour chaque résident
+        const rowDiv = document.createElement("div");
+        rowDiv.classList.add("resident-row");
+
+        // Label pour le nom du résident (sans afficher l'ID)
+        const label = document.createElement("label");
+        label.textContent = `Résident ${index + 1} : `;
+        rowDiv.appendChild(label);
+
+        // Input pour le nom du résident
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = resident.name;
+        nameInput.dataset.unit = house;
+        nameInput.dataset.id = resident.id;
+        nameInput.addEventListener("change", function() {
+          const unit = this.dataset.unit;
+          const id = this.dataset.id;
+          const res = residentsByUnit[unit].find(r => r.id === id);
+          if (res) {
+            res.name = this.value;
+            saveData();
+          }
+        });
+        rowDiv.appendChild(nameInput);
+
+        // Label pour "Texture des repas :" avec la classe spécifique pour réduire la marge
+        const textureLabel = document.createElement("label");
+        textureLabel.textContent = "Texture des repas : ";
+        textureLabel.classList.add("texture-label");
+        rowDiv.appendChild(textureLabel);
+
+        // Dropdown pour la texture des repas
+        const textureSelect = document.createElement("select");
+        textureSelect.dataset.unit = house;
+        textureSelect.dataset.id = resident.id;
+        ["standart", "Haché", "Mixé"].forEach(optionValue => {
+          const option = document.createElement("option");
+          option.value = optionValue;
+          option.textContent = optionValue;
+          textureSelect.appendChild(option);
+        });
+        textureSelect.value = resident.texture || "standart";
+        textureSelect.addEventListener("change", function() {
+          const unit = this.dataset.unit;
+          const id = this.dataset.id;
+          const res = residentsByUnit[unit].find(r => r.id === id);
+          if (res) {
+            res.texture = this.value;
+            saveData();
+          }
+        });
+        rowDiv.appendChild(textureSelect);
+
+        unitDiv.appendChild(rowDiv);
+      });
+      settingsContainer.appendChild(unitDiv);
+    }
+
+    // --- Configuration des Professionnels par Catégorie ---
+    // Peupler le menu déroulant des catégories
+    function populateCategoryDropdown() {
+      const categorySelect = document.getElementById("categorySelect");
+      categorySelect.innerHTML = "";
+      Object.keys(professionalsByCategory).forEach(category => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        categorySelect.appendChild(option);
+      });
+    }
+
+    // Construction dynamique de l'affichage pour une catégorie sélectionnée
+    function buildCategoryProfessionalSettings(selectedCategory) {
+      const categoryContainer = document.getElementById("categorySettings");
+      categoryContainer.innerHTML = "";
+
+      const category = selectedCategory || Object.keys(professionalsByCategory)[0];
+
+      const catDiv = document.createElement("div");
+      catDiv.classList.add("unit-settings");
+
+      const catTitle = document.createElement("h3");
+      catTitle.textContent = category;
+      catDiv.appendChild(catTitle);
+
+      professionalsByCategory[category].forEach((proName, index) => {
+        const label = document.createElement("label");
+        label.textContent = `Pro ${index + 1}: `;
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = proName;
+        input.dataset.category = category;
+        input.dataset.index = index;
+        input.addEventListener("change", function() {
+          const cat = this.dataset.category;
+          const idx = this.dataset.index;
+          professionalsByCategory[cat][idx] = this.value;
+          saveData();
+        });
+        catDiv.appendChild(label);
+        catDiv.appendChild(input);
+        catDiv.appendChild(document.createElement("br"));
+      });
+      categoryContainer.appendChild(catDiv);
+    }
+
+    // Au chargement de la page, on charge et affiche toutes les configurations
+    window.addEventListener("load", function() {
+      loadData();
+
+      // Configuration pour les professionnels par Maison / Accueil de jour
+      populateHouseDropdown();
+      const houseSelect = document.getElementById("houseSelect");
+      buildProfessionalSettings(houseSelect.value);
+      houseSelect.addEventListener("change", function() {
+        buildProfessionalSettings(this.value);
+      });
+
+      // Configuration pour les résidents par Maison / Accueil de jour
+      populateResidentHouseDropdown();
+      const residentHouseSelect = document.getElementById("residentHouseSelect");
+      buildResidentSettings(residentHouseSelect.value);
+      residentHouseSelect.addEventListener("change", function() {
+        buildResidentSettings(this.value);
+      });
+
+      // Configuration pour les professionnels par Catégorie
+      populateCategoryDropdown();
+      const categorySelect = document.getElementById("categorySelect");
+      buildCategoryProfessionalSettings(categorySelect.value);
+      categorySelect.addEventListener("change", function() {
+        buildCategoryProfessionalSettings(this.value);
+      });
+
+      // --- Gestion du changement d'affichage via les boutons ---
+      const btnProfessionnels = document.getElementById("btnProfessionnels");
+      const btnResidents = document.getElementById("btnResidents");
+      const containerProHouse = document.getElementById("containerProfessionnelsHouse");
+      const containerProCategory = document.getElementById("containerProfessionnelsCategory");
+      const containerResidents = document.getElementById("containerResidents");
+
+      // Affichage par défaut : Professionnels
+      containerProHouse.style.display = "block";
+      containerProCategory.style.display = "block";
+      containerResidents.style.display = "none";
+
+      btnProfessionnels.addEventListener("click", function() {
+        containerProHouse.style.display = "block";
+        containerProCategory.style.display = "block";
+        containerResidents.style.display = "none";
+      });
+
+      btnResidents.addEventListener("click", function() {
+        containerProHouse.style.display = "none";
+        containerProCategory.style.display = "none";
+        containerResidents.style.display = "block";
+      });
+    });
+  </script>
+</body>
+</html>
