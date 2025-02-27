@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Édition des Activités</title>
+  <style>
+    /* Bouton Retour à l'accueil */
+    .back-button {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      padding: 8px 12px;
+      background: #3498db;
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 14px;
+      z-index: 1000;
+    }
+
+    /* Styles généraux */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f7f7f7;
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    form {
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    form label {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    form select,
+    form input[type="time"],
+    form input[type="text"] {
+      padding: 5px;
+      margin-right: 20px;
+      min-width: 150px;
+      margin-bottom: 10px;
+    }
+    form button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+      font-size: 1em;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 2px;
+      text-align: center;
+      min-width: 100px;
+    }
+    th {
+      background-color: #e2e2e2;
+    }
+    button.delete-btn {
+      background: #d9534f;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    button.delete-btn:hover {
+      background: #c9302c;
+    }
+    /* Classe pour aligner les éléments en ligne */
+    .activity-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    /* Largeur des inputs de type time */
+    form input[type="time"] {
+      width: 80px;
+      min-width: 80px;
+    }
+    /* Bouton Impression */
+    .export-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #5cb85c;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .export-btn:hover {
+      background: #4cae4c;
+    }
+    /* Centrage des inputs principaux */
+    #animationName,
+    #animationDescription {
+      display: block;
+      margin: 20px auto;
+      text-align: center;
+      width: 80%;
+      max-width: 600px;
+    }
+    #animationDescription {
+      height: 100px;
+    }
+    /* Conteneur des inputs "intervenant extérieur" et "lieu" */
+    .inline-inputs {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+      width: 80%;
+      max-width: 600px;
+    }
+    .inline-inputs input {
+      flex: 1;
+      margin: 0 10px;
+      padding: 8px;
+      text-align: center;
+    }
+    /* Conteneur des cases à cocher (répétition) */
+    .checkbox-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+      width: 80%;
+      max-width: 600px;
+    }
+    .checkbox-container > label {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    .checkbox-container label {
+      margin: 0 10px;
+      display: flex;
+      align-items: center;
+    }
+    .checkbox-container input[type="checkbox"] {
+      margin-right: 5px;
+    }
+    /* Conteneur des types (caché par défaut) */
+    .type-checkboxes {
+      display: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px auto;
+      width: 40%;
+      max-width: 300px;
+    }
+    .type-checkboxes label {
+      width: 50%;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    /* Inputs de date */
+    .date-input-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px auto;
+      width: 80%;
+      max-width: 600px;
+    }
+    .date-input-container input[type="date"] {
+      margin-right: 10px;
+      text-align: center;
+    }
+    .date-input-container button {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    /* Conteneur de date (caché initialement) */
+    #dateInputsContainer {
+      display: none;
+      width: 40%;
+      max-width: 300px;
+    }
+    /* Conteneur types et dates */
+    .types-and-dates {
+      display: flex;
+      justify-content: center;
+      margin: 20px auto;
+      width: 80%;
+      max-width: 600px;
+    }
+    /* Sections de type ajoutées dynamiquement */
+    .type-section {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 15px;
+      margin-top: 15px;
+      background-color: #f9f9f9;
+    }
+    .type-section h3 {
+      text-align: center;
+      margin-top: 0;
+    }
+    /* Quelques styles pour les blocs journée et horaire */
+    .day-block {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .day-header-row, .time-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+    .schedules-container {
+      margin-top: 10px;
+    }
+    .schedule-row {
+      border: 1px solid #ccc;
+      padding: 5px;
+      margin-bottom: 5px;
+    }
+    /* Save button style */
+    .save-button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .save-button:hover {
+      background-color: #45a049;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+      border-radius: 5px;
+      text-align: center;
+    }
+
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Autocomplete Styles */
+    .autocomplete-container {
+      position: relative;
+      display: inline-block;
+      width: 100%; /* Adjust as needed */
+    }
+    .autocomplete-input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: calc(100% - 22px); /* Adjust to account for padding and border */
+      box-sizing: border-box;
+    }
+    .autocomplete-items {
+      position: absolute;
+      border: 1px solid #d4d4d4;
+      border-bottom: none;
+      border-top: none;
+      z-index: 99;
+      top: 100%;
+      left: 0;
+      right: 0;
+      overflow-y: auto; /* Enable scroll if needed */
+      max-height: 150px; /* Adjust max height */
+    }
+    .autocomplete-items div {
+      padding: 10px;
+      cursor: pointer;
+      background-color: #fff;
+      border-bottom: 1px solid #d4d4d4;
+    }
+    .autocomplete-items div:hover {
+      background-color: #eee;
+    }
+    .autocomplete-active {
+      background-color: DodgerBlue !important;
+      color: #ffffff !important;
+    }
+    .selected-items-container {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 5px;
+      margin-top: 5px;
+      min-height: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .selected-item {
+      background-color: #f0f0f0;
+      padding: 3px 5px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .remove-item-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      color: #555;
+      padding: 0;
+      line-height: 1;
+    }
+    .remove-item-button:hover {
+      color: #000;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Bouton Retour à l'accueil -->
+  <a href="index.html" class="back-button">Retour à l'accueil</a>
+  <div class="container">
+    <h1>Édition des Activités</h1>
+    <input type="text" id="animationName" placeholder="Nom de l'activité">
+    <!-- Genre Dropdown -->
+    <select id="animationGenre" style="display: block; margin: 20px auto; text-align: center; width: 80%; max-width: 600px;">
+	  <option value="Activités manuelles">Activités manuelles</option>
+	  <option value="Animations">Animations</option>
+	  <option value="animaux">Animaux</option>
+	  <option value="Bien-être">Bien-être</option>
+	  <option value="Culture">Culture</option>
+	  <option value="loisirs">Loisirs</option>
+	  <option value="Partenariats">Partenariats</option>
+	  <option value="repas">Repas</option>
+	  <option value="Sensorielle">Sensorielle</option>
+	  <option value="Social">Social</option>
+	  <option value="sport">Sport</option>
+	  <option value="Temps individuels">Temps individuels</option>
+
+    </select>
+    <textarea type="text" id="animationDescription" placeholder="Description de l'activité"></textarea>
+    <!-- Inputs intervenant extérieur et lieu -->
+    <div class="inline-inputs">
+      <input type="text" id="externalIntervention" placeholder="Intervenant extérieur">
+      <input type="text" id="location" placeholder="Lieu">
+    </div>
+    <!-- Vehicle Selection -->
+    <div class="checkbox-container" id="vehicleSelection">
+      <label>Véhicule :</label>
+      <label><input type="checkbox" name="vehicle" value="x1 Master"> x1 Master</label>
+      <label><input type="checkbox" name="vehicle" value="x2 Master"> x2 Master</label>
+      <label><input type="checkbox" name="vehicle" value="x1 Kangoo"> x1 Kangoo</label>
+      <label><input type="checkbox" name="vehicle" value="x2 Kangoo"> x2 Kangoo</label>
+    </div>
+    <!-- Cases à cocher Répétition -->
+    <div class="checkbox-container">
+      <label>Répétition :</label>
+      <label><input type="checkbox" id="repetitionTypes"> Types</label>
+      <span>｜</span>
+      <label><input type="checkbox" id="specificDates"> Dates spécifiques</label>
+    </div>
+    <!-- Container Types et Dates -->
+    <div class="types-and-dates" id="typesAndDatesContainer">
+      <!-- Container Types -->
+      <div class="type-checkboxes" id="typeCheckboxes">
+        <!-- Nouvelle case "Tous" -->
+        <label><input type="checkbox" id="allTypes" name="type" value="all"> Tous</label>
+        <label><input type="checkbox" name="type" value="1"> Type 1</label>
+        <label><input type="checkbox" name="type" value="2"> Type 2</label>
+        <label><input type="checkbox" name="type" value="3"> Type 3</label>
+        <label><input type="checkbox" name="type" value="4"> Type 4</label>
+        <label><input type="checkbox" name="type" value="5"> Type 5</label>
+        <label><input type="checkbox" name="type" value="6"> Type 6</label>
+        <label><input type="checkbox" name="type" value="7"> Type 7</label>
+        <label><input type="checkbox" name="type" value="8"> Type 8</label>
+        <label><input type="checkbox" name="type" value="9"> Type 9</label>
+        <label><input type="checkbox" name="type" value="10"> Type 10</label>
+        <label><input type="checkbox" name="type" value="11"> Type 11</label>
+        <label><input type="checkbox" name="type" value="12"> Type 12</label>
+      </div>
+      <!-- Container Dates -->
+      <div id="dateInputsContainer">
+        <div class="date-input-container">
+          <label>Ajouter date :  </label>
+          <button type="button" class="addDate">+</button>
+        </div>
+        <div class="checkbox-container">
+          <label><input type="checkbox" id="allDates" name="date" value="all"> Toutes</label>
+        </div>
+      </div>
+    </div>
+    <!-- Sections de Type -->
+    <div id="typeSectionsContainer"></div>
+    <!-- Bouton Sauvegarder Activité -->
+    <button class="save-button" id="saveActivity">Sauvegarder Activité</button>
+
+    <!-- Modal de succès -->
+    <div id="successModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" id="closeModal">×</span>
+        <p>Activité sauvegardée avec succès !</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Remove fs and path imports
+    let residentsByUnit = {};
+    let professionalsByUnit = {};
+    let professionalsByCategory = {};
+    let allResidents = [];
+    let allProfessionals = [];
+
+    function loadData() {
+      fetch('/api/data') // GET request to /api/data
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          residentsByUnit = data.residentsByUnit || {};
+          professionalsByUnit = data.professionalsByUnit || {};
+          professionalsByCategory = data.professionalsByCategory || {};
+          console.log('Data loaded successfully from /api/data');
+          prepareAutocompleteData();
+          initializePage();
+        })
+        .catch(error => {
+          console.error('Error loading data:', error);
+          console.warn('Using default values.');
+          prepareAutocompleteData();
+          initializePage();
+        });
+    }
+
+    function prepareAutocompleteData() {
+      allResidents = [];
+      for (const unit in residentsByUnit) {
+        residentsByUnit[unit].forEach(resident => {
+          allResidents.push({ id: resident.id, name: resident.name, texture: resident.texture });
+        });
+      }
+
+      allProfessionals = [];
+      for (const unit in professionalsByUnit) {
+        professionalsByUnit[unit].forEach(pro => {
+          allProfessionals.push(pro);
+        });
+      }
+      for (const category in professionalsByCategory) {
+        professionalsByCategory[category].forEach(pro => {
+          if (!allProfessionals.includes(pro)) { // Prevent duplicates if a pro is in both unit and category lists
+            allProfessionals.push(pro);
+          }
+        });
+      }
+      allProfessionals.sort(); // Sort alphabetically
+    }
+
+
+    function initializePage() {
+      const repetitionTypesCheckbox = document.getElementById("repetitionTypes");
+      const typeCheckboxesDiv = document.getElementById("typeCheckboxes");
+      const specificDatesCheckbox = document.getElementById("specificDates");
+      const dateInputsContainer = document.getElementById("dateInputsContainer");
+      const typesAndDatesContainer = document.getElementById("typesAndDatesContainer");
+      const joursSemaine = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+      const saveButton = document.getElementById('saveActivity');
+      const successModal = document.getElementById('successModal');
+      const closeModalButton = document.getElementById('closeModal');
+
+      function updateVisibility() {
+        const bothChecked = repetitionTypesCheckbox.checked && specificDatesCheckbox.checked;
+        typeCheckboxesDiv.style.display = repetitionTypesCheckbox.checked ? "flex" : "none";
+        dateInputsContainer.style.display = specificDatesCheckbox.checked ? "block" : "none";
+        typesAndDatesContainer.style.display = bothChecked ? "flex" : "block";
+
+        if (bothChecked) {
+          typeCheckboxesDiv.style.width = "40%";
+          typeCheckboxesDiv.style.maxWidth = "300px";
+          dateInputsContainer.style.width = "40%";
+          dateInputsContainer.style.maxWidth = "300px";
+        } else {
+          typeCheckboxesDiv.style.width = "80%";
+          typeCheckboxesDiv.style.maxWidth = "600px";
+          dateInputsContainer.style.width = "80%";
+          dateInputsContainer.style.maxWidth = "600px";
+        }
+        updateSections(); // Changed from updateTypeSections
+      }
+
+      function updateSections() { // Renamed from updateTypeSections
+        const typeSectionsContainer = document.getElementById('typeSectionsContainer');
+        typeSectionsContainer.innerHTML = '';
+        const allTypesCheckbox = document.getElementById('allTypes');
+        const allDatesCheckbox = document.getElementById('allDates'); // Get the "Tous" dates checkbox
+
+        if (allTypesCheckbox && allTypesCheckbox.checked && document.getElementById('repetitionTypes').checked) {
+          // Si "Tous types" est coché et repetition types est coché, créer un bloc commun pour tous les types
+          const section = createSection("allTypes"); // Changed from createTypeSection
+          typeSectionsContainer.appendChild(section);
+        } else if (document.getElementById('repetitionTypes').checked) {
+          // Sinon, créer un bloc pour chaque type sélectionné (excluant "Tous")
+          const typeCheckboxes = document.querySelectorAll('.type-checkboxes input[name="type"]:not([value="all"])');
+          typeCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+              const typeNumber = checkbox.value;
+              const section = createSection("type", typeNumber); // Changed from createTypeSection
+              typeSectionsContainer.appendChild(section);
+            }
+          });
+        }
+
+        if (allDatesCheckbox && allDatesCheckbox.checked && document.getElementById('specificDates').checked) {
+          // Si "Toutes dates" est coché et specific dates est coché, créer un bloc commun pour toutes les dates
+          const section = createSection("allDates"); // Create section for all dates
+          typeSectionsContainer.appendChild(section);
+        } else if (document.getElementById('specificDates').checked) {
+          // Sinon, créer un bloc pour chaque date spécifique
+          const dateInputs = document.querySelectorAll('.date-input-container .specificDateInput');
+          let dates = Array.from(dateInputs).map(input => input.value).filter(date => date !== '');
+          dates.forEach(date => {
+            const section = createSection("date", date); // Create section for each date
+            typeSectionsContainer.appendChild(section);
+          });
+        }
+      }
+
+      // Création d'une section pour un type ou date donné (ou "allTypes"/"allDates" pour tous)
+      function createSection(sectionType, sectionValue) { // Renamed from createTypeSection and modified
+        const sectionDiv = document.createElement('div');
+        sectionDiv.classList.add('type-section');
+
+        const title = document.createElement('h3');
+        if (sectionType === "allTypes") {
+          title.textContent = "Tous les types";
+        } else if (sectionType === "type") {
+          title.textContent = "Type " + sectionValue;
+        } else if (sectionType === "allDates") {
+          const dateInputs = document.querySelectorAll('#dateInputsContainer .date-input-container .specificDateInput');
+          let dates = Array.from(dateInputs).map(input => input.value).filter(date => date !== '');
+          const formattedDates = dates.map(date => formatDate(date));
+          if (formattedDates.length > 0) {
+            title.textContent = "Dates : " + formattedDates.join(', ');
+          } else {
+            title.textContent = "Dates : (aucune date sélectionnée)";
+          }
+        } else if (sectionType === "date") {
+          const formattedDate = formatDate(sectionValue);
+          title.textContent = "Date : " + formattedDate;
+        }
+        sectionDiv.appendChild(title);
+
+        // Conteneur des blocs journée pour ce type/date
+        const dayBlocksContainer = document.createElement('div');
+        dayBlocksContainer.classList.add('day-blocks-container');
+
+        // Fonction qui crée un bloc journée
+        function createDayBlock(container, currentSectionType) { // Added currentSectionType parameter
+          const dayBlock = document.createElement('div');
+          dayBlock.classList.add('day-block');
+
+          // En-tête de la journée : sélection du jour + boutons d'ajout/suppression de bloc journée
+          const dayHeaderRow = document.createElement('div');
+          dayHeaderRow.classList.add('day-header-row');
+
+          const daySelect = document.createElement('select');
+          daySelect.classList.add('daySelect');
+          const defaultDayOption = document.createElement('option');
+          defaultDayOption.value = "";
+          defaultDayOption.textContent = "-- Choisir le jour --";
+          daySelect.appendChild(defaultDayOption);
+          joursSemaine.forEach(jour => {
+            const option = document.createElement('option');
+            option.value = jour;
+            option.textContent = jour;
+            daySelect.appendChild(option);
+          });
+          dayHeaderRow.appendChild(daySelect);
+
+          const addDayBlockButton = document.createElement('button');
+          addDayBlockButton.type = 'button';
+          addDayBlockButton.classList.add('addDayBlock');
+          addDayBlockButton.textContent = '+';
+          dayHeaderRow.appendChild(addDayBlockButton);
+
+          const removeDayBlockButton = document.createElement('button');
+          removeDayBlockButton.type = 'button';
+          removeDayBlockButton.classList.add('removeDayBlock');
+          removeDayBlockButton.textContent = '-';
+          dayHeaderRow.appendChild(removeDayBlockButton);
+
+          // Conditionally hide daySelect and addDayBlockButton for date sections
+          if (currentSectionType === "date" || currentSectionType === "allDates") {
+            daySelect.style.display = 'none';
+            const addDayButtonElement = dayHeaderRow.querySelector('.addDayBlock');
+            if (addDayButtonElement) { // Null check here
+              addDayButtonElement.style.display = 'none';
+            }
+          }
+
+          dayBlock.appendChild(dayHeaderRow);
+
+          // Conteneur des plages horaires dans la journée
+          const schedulesContainer = document.createElement('div');
+          schedulesContainer.classList.add('schedules-container');
+
+          // Fonction interne pour créer une plage horaire (reste inchangée)
+          function createScheduleRow(container) {
+            const scheduleRow = document.createElement('div');
+            scheduleRow.classList.add('schedule-row');
+
+            // Ligne des horaires avec boutons d'ajout/suppression pour cet horaire
+            const timeRow = document.createElement('div');
+            timeRow.classList.add('time-row');
+
+            const startLabel = document.createElement('label');
+            startLabel.textContent = 'Début :';
+            timeRow.appendChild(startLabel);
+
+            const startInput = document.createElement('input');
+            startInput.type = 'time';
+            startInput.classList.add('startTime');
+            startInput.required = true;
+            timeRow.appendChild(startInput);
+
+            const endLabel = document.createElement('label');
+            endLabel.textContent = 'Fin :';
+            timeRow.appendChild(endLabel);
+
+            const endInput = document.createElement('input');
+            endInput.type = 'time';
+            endInput.classList.add('endTime');
+            endInput.required = true;
+            timeRow.appendChild(endInput);
+
+            const addScheduleButton = document.createElement('button');
+            addScheduleButton.type = 'button';
+            addScheduleButton.classList.add('addScheduleRow');
+            addScheduleButton.textContent = '+';
+            timeRow.appendChild(addScheduleButton);
+
+            const removeScheduleButton = document.createElement('button');
+            removeScheduleButton.type = 'button';
+            removeScheduleButton.classList.add('removeScheduleRow');
+            removeScheduleButton.textContent = '-';
+            timeRow.appendChild(removeScheduleButton);
+
+            scheduleRow.appendChild(timeRow);
+
+            // Autocomplete pour les résidents
+            const residentContainerDiv = document.createElement('div');
+            residentContainerDiv.classList.add('resident-container');
+            residentContainerDiv.style.display = 'none';
+            residentContainerDiv.style.flexDirection = 'column'; // Changed to column
+            residentContainerDiv.style.alignItems = 'stretch'; // Stretch alignment
+            residentContainerDiv.style.justifyContent = 'center';
+            residentContainerDiv.style.gap = '5px'; // Reduced gap
+
+            const openToAllCheckboxDiv = document.createElement('div');
+            openToAllCheckboxDiv.style.display = 'flex';
+            openToAllCheckboxDiv.style.alignItems = 'center';
+            openToAllCheckboxDiv.style.gap = '5px';
+            const openToAllCheckbox = document.createElement('input');
+            openToAllCheckbox.type = 'checkbox';
+            const uniqueIdResident = Math.random().toString(36).substring(2,8);
+            openToAllCheckbox.id = `openToAll_${uniqueIdResident}`;
+            const openToAllLabel = document.createElement('label');
+            openToAllLabel.textContent = "Ouvert à tous";
+            openToAllLabel.setAttribute("for", openToAllCheckbox.id);
+            openToAllCheckboxDiv.appendChild(openToAllCheckbox);
+            openToAllCheckboxDiv.appendChild(openToAllLabel);
+            residentContainerDiv.appendChild(openToAllCheckboxDiv);
+
+            const residentAutocompleteDiv = document.createElement('div');
+            residentAutocompleteDiv.classList.add('autocomplete-container');
+            const residentInput = document.createElement('input');
+            residentInput.type = 'text';
+            residentInput.classList.add('autocomplete-input', 'residentInput');
+            residentInput.placeholder = 'Rechercher un résident...';
+            const residentSuggestions = document.createElement('div');
+            residentSuggestions.classList.add('autocomplete-items', 'residentSuggestions');
+            residentSuggestions.style.display = 'none'; // Hide initially
+            residentAutocompleteDiv.appendChild(residentInput);
+            residentAutocompleteDiv.appendChild(residentSuggestions);
+            residentContainerDiv.appendChild(residentAutocompleteDiv);
+
+            const selectedResidentsDiv = document.createElement('div');
+            selectedResidentsDiv.classList.add('selected-items-container', 'selected-residents');
+            residentContainerDiv.appendChild(selectedResidentsDiv);
+
+            scheduleRow.appendChild(residentContainerDiv);
+
+            // Autocomplete pour les professionnels
+            const professionalContainerDiv = document.createElement('div');
+            professionalContainerDiv.classList.add('professional-container');
+            professionalContainerDiv.style.display = 'none';
+            professionalContainerDiv.style.flexDirection = 'column'; // Changed to column
+            professionalContainerDiv.style.alignItems = 'stretch'; // Stretch alignment
+            professionalContainerDiv.style.justifyContent = 'center';
+            professionalContainerDiv.style.gap = '5px'; // Reduced gap
+
+
+            const professionalAutocompleteDiv = document.createElement('div');
+            professionalAutocompleteDiv.classList.add('autocomplete-container');
+            const professionalInput = document.createElement('input');
+            professionalInput.type = 'text';
+            professionalInput.classList.add('autocomplete-input', 'professionalInput');
+            professionalInput.placeholder = 'Rechercher un professionnel...';
+            const professionalSuggestions = document.createElement('div');
+            professionalSuggestions.classList.add('autocomplete-items', 'professionalSuggestions');
+            professionalSuggestions.style.display = 'none'; // Hide initially
+            professionalAutocompleteDiv.appendChild(professionalInput);
+            professionalAutocompleteDiv.appendChild(professionalSuggestions);
+            professionalContainerDiv.appendChild(professionalAutocompleteDiv);
+
+            const selectedProfessionalsDiv = document.createElement('div');
+            selectedProfessionalsDiv.classList.add('selected-items-container', 'selected-professionals');
+            professionalContainerDiv.appendChild(selectedProfessionalsDiv);
+
+
+            scheduleRow.appendChild(professionalContainerDiv);
+
+
+            // Options repas (reste inchangé)
+            const mealOptionsDiv = document.createElement('div');
+            mealOptionsDiv.classList.add('meal-options');
+            mealOptionsDiv.style.display = 'flex';
+            mealOptionsDiv.style.alignItems = 'center';
+            mealOptionsDiv.style.gap = '10px';
+            mealOptionsDiv.style.marginTop = '10px';
+
+            const repasCuisineCheckbox = document.createElement('input');
+            repasCuisineCheckbox.type = 'checkbox';
+            repasCuisineCheckbox.classList.add('repasCuisine');
+            repasCuisineCheckbox.id = `repasCuisine_${Math.random().toString(36).substring(2,8)}`;
+            const repasCuisineLabel = document.createElement('label');
+            repasCuisineLabel.textContent = "Repas Cuisine";
+            repasCuisineLabel.setAttribute("for", repasCuisineCheckbox.id);
+            mealOptionsDiv.appendChild(repasCuisineCheckbox);
+            mealOptionsDiv.appendChild(repasCuisineLabel);
+
+            const repasExterieurCheckbox = document.createElement('input');
+            repasExterieurCheckbox.type = 'checkbox';
+            repasExterieurCheckbox.classList.add('repasExterieur');
+            repasExterieurCheckbox.id = `repasExterieur_${Math.random().toString(36).substring(2,8)}`;
+            const repasExterieurLabel = document.createElement('label');
+            repasExterieurLabel.textContent = "Repas Exterieur";
+            repasExterieurLabel.setAttribute("for", repasExterieurCheckbox.id);
+            mealOptionsDiv.appendChild(repasExterieurCheckbox);
+            mealOptionsDiv.appendChild(repasExterieurLabel);
+
+            const mealCountDiv = document.createElement('div');
+            mealCountDiv.classList.add('mealCount');
+            mealCountDiv.style.marginTop = '10px';
+            mealCountDiv.style.fontWeight = 'bold';
+            mealOptionsDiv.appendChild(mealCountDiv);
+            scheduleRow.appendChild(mealOptionsDiv);
+
+
+            // Autocomplete Logic for Residents
+            setupAutocomplete(residentInput, residentSuggestions, allResidents, selectedResidentsDiv, 'resident');
+
+            // Autocomplete Logic for Professionals
+            setupAutocomplete(professionalInput, professionalSuggestions, allProfessionals, selectedProfessionalsDiv, 'professional');
+
+
+            openToAllCheckbox.addEventListener('change', function() {
+              updateMealCount.call(residentInput); // Update meal count
+              const scheduleRowElement = this.closest('.schedule-row');
+              const currentResidentInput = scheduleRowElement.querySelector('.resident-container .autocomplete-input');
+              const currentSelectedResidentsDiv = scheduleRowElement.querySelector('.selected-residents');
+              if (this.checked) {
+                currentResidentInput.disabled = true;
+                currentSelectedResidentsDiv.innerHTML = "Ouvert à tous";
+              } else {
+                currentResidentInput.disabled = false;
+                currentSelectedResidentsDiv.innerHTML = "";
+              }
+            });
+
+
+            function updateMealCount() {
+              const scheduleRowElement = this.closest('.schedule-row');
+              const currentRepasCuisineCheckbox = scheduleRowElement.querySelector('.meal-options .repasCuisine');
+              const currentRepasExterieurCheckbox = scheduleRowElement.querySelector('.meal-options .repasExterieur');
+              const currentMealCountDiv = scheduleRowElement.querySelector('.mealCount');
+              const currentOpenToAllCheckbox = scheduleRowElement.querySelector('.resident-container input[type="checkbox"]');
+              const currentSelectedResidentsDiv = scheduleRowElement.querySelector('.selected-residents');
+              const currentSelectedProfessionalsDiv = scheduleRowElement.querySelector('.selected-professionals');
+
+
+              if (!currentRepasCuisineCheckbox.checked && !currentRepasExterieurCheckbox.checked) {
+                currentMealCountDiv.textContent = "";
+                return;
+              }
+
+              let residentCount = 0;
+              let residentTextureCounts = {};
+
+              if (currentOpenToAllCheckbox.checked) {
+                  residentCount = allResidents.length;
+                  allResidents.forEach(resident => {
+                      let texture = resident.texture || "standard";
+                      texture = texture.toLowerCase();
+                      if (texture === "standart") texture = "standard";
+                      residentTextureCounts[texture] = (residentTextureCounts[texture] || 0) + 1;
+                  });
+              } else {
+                  const selectedResidentItems = currentSelectedResidentsDiv.querySelectorAll('.selected-item');
+                  selectedResidentItems.forEach(item => {
+                      residentCount++;
+                      const residentId = item.dataset.itemId;
+                      const resident = allResidents.find(res => res.id === residentId);
+                      if (resident) {
+                          let texture = resident.texture || "standard";
+                          texture = texture.toLowerCase();
+                          if (texture === "standart") texture = "standard";
+                          residentTextureCounts[texture] = (residentTextureCounts[texture] || 0) + 1;
+                      }
+                  });
+              }
+
+
+              let professionalCount = 0;
+              const selectedProfessionalItems = currentSelectedProfessionalsDiv.querySelectorAll('.selected-item');
+              professionalCount = selectedProfessionalItems.length;
+
+
+              let totalMealCount = residentCount + professionalCount;
+              residentTextureCounts["standard"] = (residentTextureCounts["standard"] || 0) + professionalCount;
+
+              let textureParts = [];
+              for (const tex in residentTextureCounts) {
+                  if (residentTextureCounts.hasOwnProperty(tex) && residentTextureCounts[tex] > 0) {
+                      textureParts.push(`x${residentTextureCounts[tex]} ${tex}`);
+                  }
+              }
+
+              let finalText = `${totalMealCount} repas`;
+              if (textureParts.length > 0) {
+                  finalText += ": " + textureParts.join(", ");
+              }
+              currentMealCountDiv.textContent = finalText;
+            }
+
+
+            repasCuisineCheckbox.addEventListener('change', function() { updateMealCount.call(residentInput); });
+            repasExterieurCheckbox.addEventListener('change', function() { updateMealCount.call(residentInput); });
+
+            function checkTimeInputs() {
+              const scheduleRowElement = this.closest('.schedule-row');
+              const currentTimeStartInput = scheduleRowElement.querySelector('.time-row .startTime');
+              const currentTimeEndInput = scheduleRowElement.querySelector('.time-row .endTime');
+              const currentResidentContainerDiv = scheduleRowElement.querySelector('.resident-container');
+              const currentProfessionalContainerDiv = scheduleRowElement.querySelector('.professional-container');
+              if (currentTimeStartInput.value && currentTimeEndInput.value) {
+                currentResidentContainerDiv.style.display = 'flex';
+                currentProfessionalContainerDiv.style.display = 'flex';
+              } else {
+                currentResidentContainerDiv.style.display = 'none';
+                currentProfessionalContainerDiv.style.display = 'none';
+              }
+            }
+            startInput.addEventListener('input', checkTimeInputs);
+            endInput.addEventListener('input', checkTimeInputs);
+
+
+            // Boutons d'ajout/suppression pour une plage horaire (reste inchangé)
+            addScheduleButton.addEventListener('click', function() {
+              container.appendChild(createScheduleRow(container));
+              updateRemoveScheduleButtonsVisibility(container); // Pass container
+            });
+            removeScheduleButton.addEventListener('click', function() {
+              if (container.children.length > 1) {
+                scheduleRow.remove();
+                updateRemoveScheduleButtonsVisibility(container); // Pass container
+              }
+            });
+
+            return scheduleRow;
+          } // fin de createScheduleRow
+
+
+          function setupAutocomplete(inputElement, suggestionsContainer, itemList, selectedItemsContainer, itemType) {
+            let currentFocus;
+            let selectedItems = [];
+
+            inputElement.addEventListener("input", function(e) {
+              let a, b, i, val = this.value;
+              closeAllLists();
+              if (!val) { return false;}
+              currentFocus = -1;
+              suggestionsContainer.style.display = "block";
+              suggestionsContainer.innerHTML = "";
+              for (i = 0; i < itemList.length; i++) {
+                let itemName = (itemType === 'resident') ? itemList[i].name : itemList[i];
+                if (itemName.toUpperCase().includes(val.toUpperCase())) {
+                  b = document.createElement("div");
+                  b.innerHTML = "<strong>" + itemName.substr(0, val.length) + "</strong>";
+                  b.innerHTML += itemName.substr(val.length);
+                  if (itemType === 'resident') {
+                    b.dataset.residentId = itemList[i].id; // Store resident ID
+                    b.dataset.residentTexture = itemList[i].texture; // Store resident texture
+                    b.dataset.residentName = itemList[i].name; // Store resident name
+                  } else {
+                    b.dataset.proName = itemList[i]; // Store pro name
+                  }
+
+                  b.addEventListener("click", function(e) {
+                    let selectedItem;
+                    if (itemType === 'resident') {
+                      selectedItem = { id: this.dataset.residentId, name: this.dataset.residentName, texture: this.dataset.residentTexture };
+                      if (!selectedItems.find(item => item.id === selectedItem.id)) {
+                        selectedItems.push(selectedItem);
+                      }
+                    } else {
+                      selectedItem = this.dataset.proName;
+                      if (!selectedItems.includes(selectedItem)) {
+                        selectedItems.push(selectedItem);
+                      }
+                    }
+
+                    updateSelectedDisplay(selectedItems, selectedItemsContainer, itemType);
+                    inputElement.value = "";
+                    closeAllLists();
+                    updateMealCount.call(inputElement); // Update meal count after selection
+                  });
+                  suggestionsContainer.appendChild(b);
+                }
+              }
+            });
+            inputElement.addEventListener("keydown", function(e) {
+              if (e.keyCode == 40) { // DOWN arrow
+                currentFocus++;
+                addActive(suggestionsContainer.querySelectorAll("div"));
+              } else if (e.keyCode == 38) { // UP arrow
+                currentFocus--;
+                addActive(suggestionsContainer.querySelectorAll("div"));
+              } else if (e.keyCode == 13) { // ENTER
+                e.preventDefault();
+                if (currentFocus > -1) {
+                  if (suggestionsContainer.querySelectorAll("div")[currentFocus]) {
+                    suggestionsContainer.querySelectorAll("div")[currentFocus].click();
+                  }
+                }
+              }
+            });
+            function addActive(x) {
+              if (!x) return false;
+              removeActive(x);
+              if (currentFocus >= x.length) currentFocus = 0;
+              if (currentFocus < 0) currentFocus = (x.length - 1);
+              x[currentFocus].classList.add("autocomplete-active");
+            }
+            function removeActive(x) {
+              for (let i = 0; i < x.length; i++) {
+                x[i].classList.remove("autocomplete-active");
+              }
+            }
+            function closeAllLists(elmnt) {
+              if (elmnt !== inputElement) {
+                suggestionsContainer.style.display = "none";
+              }
+            }
+            document.addEventListener("click", function (e) {
+              closeAllLists(e.target);
+            });
+
+            function updateSelectedDisplay(items, container, type) {
+              container.innerHTML = '';
+              items.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('selected-item');
+                let itemName = (type === 'resident') ? item.name : item;
+                itemDiv.textContent = itemName;
+                if (type === 'resident') {
+                  itemDiv.dataset.itemId = item.id; // Store resident ID for removal
+                } else {
+                  itemDiv.dataset.itemName = item; // Store pro name for removal
+                }
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.classList.add('remove-item-button');
+                removeButton.innerHTML = '×';
+                removeButton.addEventListener('click', function() {
+                  if (type === 'resident') {
+                    selectedItems = selectedItems.filter(selectedItem => selectedItem.id !== item.id);
+                  } else {
+                    selectedItems = selectedItems.filter(selectedItem => selectedItem !== item);
+                  }
+                  updateSelectedDisplay(selectedItems, container, type);
+                  updateMealCount.call(inputElement); // Update meal count after removal
+                });
+                itemDiv.appendChild(removeButton);
+                container.appendChild(itemDiv);
+              });
+            }
+          }
+
+
+          // Mise à jour de l'affichage des boutons "–" dans les horaires (reste inchangé)
+          function updateRemoveScheduleButtonsVisibility(container) {
+            const rows = container.querySelectorAll('.schedule-row');
+            rows.forEach(row => {
+              const removeBtn = row.querySelector('.removeScheduleRow');
+              removeBtn.style.display = rows.length > 1 ? 'inline-block' : 'none';
+            });
+          }
+
+          // Création du premier horaire par défaut
+          schedulesContainer.appendChild(createScheduleRow(schedulesContainer));
+          updateRemoveScheduleButtonsVisibility(schedulesContainer); // Pass schedulesContainer
+          dayBlock.appendChild(schedulesContainer);
+
+          // Boutons pour le bloc journée
+          addDayBlockButton.addEventListener('click', function() {
+            container.appendChild(createDayBlock(container, sectionType)); // Pass sectionType here
+            updateRemoveDayBlockButtonsVisibilityForDays(container); // For day blocks
+          });
+          removeDayBlockButton.addEventListener('click', function() {
+            if (container.children.length > 1) {
+              dayBlock.remove();
+              updateRemoveDayBlockButtonsVisibilityForDays(container); // For day blocks
+            }
+          });
+
+          return dayBlock;
+        } // fin de createDayBlock
+
+        // Fonction pour mettre à jour l'affichage des boutons de suppression pour les blocs journée (reste inchangé)
+        function updateRemoveDayBlockButtonsVisibilityForDays(container) {
+          const dayBlocks = container.querySelectorAll('.day-block');
+          dayBlocks.forEach(block => {
+            const removeBtn = block.querySelector('.removeDayBlock');
+            removeBtn.style.display = dayBlocks.length > 1 ? 'inline-block' : 'none';
+          });
+        }
+
+        // Création du premier bloc journée par défaut
+        dayBlocksContainer.appendChild(createDayBlock(dayBlocksContainer, sectionType)); // Pass sectionType here
+        updateRemoveDayBlockButtonsVisibilityForDays(dayBlocksContainer); // For day blocks container
+        sectionDiv.appendChild(dayBlocksContainer);
+        return sectionDiv;
+      } // fin de createSection
+
+      function formatDate(dateString) {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+
+      function collectActivityData() {
+        return {
+          name: document.getElementById('animationName').value,
+          genre: document.getElementById('animationGenre').value, // Added genre
+          description: document.getElementById('animationDescription').value,
+          externalIntervention: document.getElementById('externalIntervention').value,
+          location: document.getElementById('location').value,
+          vehicles: Array.from(document.querySelectorAll('input[name="vehicle"]:checked')).map(checkbox => checkbox.value),
+          repetitionType: document.getElementById('repetitionTypes').checked ? 'types' : (document.getElementById('specificDates').checked ? 'dates' : null),
+          types: document.getElementById('repetitionTypes').checked ? Array.from(document.querySelectorAll('.type-checkboxes input[name="type"]:checked')).map(checkbox => checkbox.value) : [],
+          specificDates: document.getElementById('specificDates').checked ? Array.from(document.querySelectorAll('#dateInputsContainer .date-input-container .specificDateInput')).map(input => input.value).filter(date => date !== '') : [],
+          planning: Array.from(document.querySelectorAll('.type-section')).map(section => {
+            const sectionTitle = section.querySelector('h3').textContent;
+            return Array.from(section.querySelectorAll('.day-block')).map(dayBlock => {
+              let dayName = dayBlock.querySelector('.daySelect')?.value;
+              if (!dayName && (sectionTitle.startsWith("Date :") || sectionTitle.startsWith("Dates :"))) {
+                dayName = sectionTitle.split(":")[1]?.trim() || sectionTitle.split(":")[1]?.split(',').map(d => d.trim());
+              }
+              return Array.from(dayBlock.querySelectorAll('.schedule-row')).map(scheduleRow => ({
+                section: sectionTitle,
+                day: dayName,
+                startTime: scheduleRow.querySelector('.startTime').value,
+                endTime: scheduleRow.querySelector('.endTime').value,
+                residents: scheduleRow.querySelector('.resident-container input[type="checkbox"]').checked ? 'Ouvert à tous' : Array.from(scheduleRow.querySelector('.selected-residents').querySelectorAll('.selected-item')).map(item => ({
+                  id: item.dataset.itemId,
+                  // name: item.textContent, // original line - includes 'x'
+                  name: item.textContent.replace('×', '').trim(), // Modified line to remove 'x' and trim whitespace
+                  texture: item.dataset.residentTexture
+                })),
+                professionals: Array.from(scheduleRow.querySelector('.selected-professionals').querySelectorAll('.selected-item')).map(item => item.textContent.replace('×', '').trim()), // Modified line to remove 'x' and trim whitespace
+                repasCuisine: scheduleRow.querySelector('.repasCuisine').checked,
+                repasExterieur: scheduleRow.querySelector('.repasExterieur').checked,
+                mealCountDetails: scheduleRow.querySelector('.mealCount').textContent // Save meal count details
+              }));
+            }).flat();
+          }).flat()
+        };
+      }
+
+      saveButton.addEventListener('click', function() {
+        const activityData = collectActivityData();
+        const activityName = activityData.name;
+      
+        fetch('/api/activites')
+          .then(response => response.json())
+          .then(data => {
+            // Extract activities array from response data object
+            const currentActivities = data.activities || [];
+            
+            // Find and update or add new activity
+            const existingActivityIndex = currentActivities.findIndex(act => act.name === activityName);
+      
+            if (existingActivityIndex > -1) {
+              currentActivities[existingActivityIndex] = activityData;
+            } else {
+              currentActivities.push(activityData);
+            }
+      
+            // Send update with activities wrapped in object
+            return fetch('/api/save-activites', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ activities: currentActivities }) 
+            });
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            console.log('Activité sauvegardée avec succès dans activites.json');
+            successModal.style.display = "block";
+          })
+          .catch(error => {
+            console.error('Erreur lors de la sauvegarde de l\'activité:', error);
+            alert('Erreur lors de la sauvegarde de l\'activité.');
+          });
+      });
+      
+
+      closeModalButton.addEventListener('click', function() {
+        successModal.style.display = "none";
+      });
+
+      window.addEventListener('click', function(event) {
+        if (event.target == successModal) {
+          successModal.style.display = "none";
+        }
+      });
+
+
+      repetitionTypesCheckbox.addEventListener("change", updateVisibility);
+      specificDatesCheckbox.addEventListener("change", updateVisibility);
+      const allTypesCheckbox = document.getElementById('allTypes');
+      allTypesCheckbox.addEventListener('change', updateSections);
+      const individualTypeCheckboxes = document.querySelectorAll('.type-checkboxes input[name="type"]:not([value="all"])');
+      individualTypeCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSections);
+      });
+      const allDatesCheckbox = document.getElementById('allDates');
+      allDatesCheckbox.addEventListener('change', updateSections);
+
+      dateInputsContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('addDate')) {
+          const newDateInputContainer = document.createElement('div');
+          newDateInputContainer.classList.add('date-input-container');
+          newDateInputContainer.innerHTML = `
+            <input type="date" class="specificDateInput">
+            <button type="button" class="addDate">+</button>
+            <button type="button" class="removeDate">-</button>
+          `;
+          dateInputsContainer.appendChild(newDateInputContainer);
+          updateSections();
+        } else if (event.target.classList.contains('removeDate')) {
+          event.target.parentNode.remove();
+          updateSections();
+        }
+      });
+
+      updateVisibility();
+    }
+    loadData();
+  </script>
+</body>
+</html>
